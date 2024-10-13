@@ -1,31 +1,35 @@
 package main
 
-import "github.com/gin-gonic/gin"
-// import "net/http"
-// import "Backend/routes"
-import "fmt"
-import "Backend/infrastructure"
+import (
+	"Backend/controllers"
+	"Backend/infrastructure"
+	"Backend/repositories/implementations"
+	"Backend/routes"
+	"Backend/services"
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Logger())
 
-	// Connect to databases
-	postgresDB := infrastructure.InitPostgresDB()
-	mongoDB := infrastructure.InitMongoDB()
+	if err := infrastructure.InitPostgresDB(); err != nil {
+		fmt.Println("Error connecting to PostgreSQL:", err)
+		return
+	}
 
-	// JWT Middleware
+	if err := infrastructure.InitMongoDB(); err != nil {
+		fmt.Println("Error connecting to MongoDB:", err)
+		return
+	}
 
-	// Initialize routes
+	authRepo := implementations.NewAuthImpl(infrastructure.GetPostgresDB()) 
+	authService := services.NewAuthService(authRepo)                       
+	authController := controllers.NewAuthController(authService)
 
-	
-	// router.GET("/", func(c *gin.Context){
-	// 	c.JSON(http.StatusOK, gin.H{
-	// 		"name": "Davin",
-	// 		"desc": "Bennett",
-	// 	})
-	// })
-
-	fmt.Println(postgresDB, mongoDB)
+	routes.InitRoutes(router, authController)
 
 	router.Run()
 }

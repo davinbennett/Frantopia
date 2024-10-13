@@ -5,11 +5,10 @@ import (
 )
 
 type User struct {
-	ID             int64      `json:"user_id"`
-	GoogleID       int        `json:"google_id"`
+	User_id        int32      `json:"user_id"`
+	GoogleID       string     `json:"google_id"`
+	Email          string     `json:"email" validate:"required"`
 	Name           string     `json:"name"`
-	Email          string     `json:"email"`
-	Password       string     `json:"password"`
 	ProfilePicture string     `json:"profile_picture"`
 	PhoneNumber    string     `json:"phone_number"`
 	DOB            string     `json:"dob"`
