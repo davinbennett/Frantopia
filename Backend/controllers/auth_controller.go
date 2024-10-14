@@ -20,22 +20,31 @@ func (c *AuthController) LoginHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestBody struct {
 			IDToken string `json:"idToken" binding:"required"`
+			AccessToken string `json:"accessToken" binding:"required"`
 		}
 
 		if err := ctx.ShouldBindJSON(&requestBody); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code":  http.StatusBadRequest,
+				"error": "Invalid request",
+			})
 			return
 		}
 
-		jwtToken, err := c.authService.Login(requestBody.IDToken)
+		jwtToken, err := c.authService.Login(requestBody.IDToken, requestBody.AccessToken)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code":  http.StatusBadRequest,
+				"error": err.Error(),
+			})
 			return
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"jwtToken": jwtToken,
+			"code": http.StatusOK,
+			"data": gin.H{
+				"jwtToken": jwtToken,
+			},
 		})
 	}
 }
-

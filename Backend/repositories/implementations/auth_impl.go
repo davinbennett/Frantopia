@@ -18,7 +18,7 @@ func NewAuthImpl(db *gorm.DB) *AuthImpl {
 
 var _ interfaces.AuthRepository = (*AuthImpl)(nil)
 
-func (r *AuthImpl) FindOrCreateUser(googleId, email string) (*models.User, error) {
+func (r *AuthImpl) FindOrCreateUser(googleId, email, name, picture, dob string) (*models.User, error) {
 	var user models.User
 
 	err := r.db.First(&user, "google_id = ?", googleId).Error
@@ -37,6 +37,9 @@ func (r *AuthImpl) FindOrCreateUser(googleId, email string) (*models.User, error
 			GoogleID: googleId,
 			Email:    email,
 			Role:     role,
+			Name: name,
+			ProfilePicture: picture,
+			DOB: dob,
 		}
 
 		// fmt.Println(newUser)
@@ -52,18 +55,18 @@ func (r *AuthImpl) FindOrCreateUser(googleId, email string) (*models.User, error
 	return nil, err
 }
 
-func (r *AuthImpl) FindByGoogleID(googleId string) (*models.User, error) {
-	var user models.User
-	if err := r.db.Where("google_id = ?", googleId).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
+// func (r *AuthImpl) FindByGoogleID(googleId string) (*models.User, error) {
+// 	var user models.User
+// 	if err := r.db.Where("google_id = ?", googleId).First(&user).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return &user, nil
+// }
 
-func (r *AuthImpl) FindByEmail(email string) (*models.User, error) {
-	var user models.User
-	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
+// func (r *AuthImpl) FindByEmail(email string) (*models.User, error) {
+// 	var user models.User
+// 	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return &user, nil
+// }
