@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	"google.golang.org/api/idtoken"
 )
 
@@ -27,11 +28,12 @@ func NewAuthService(repo interfaces.AuthRepository) AuthService {
 
 // Login melakukan login dengan Google ID token
 func (s *authServiceImpl) Login(idToken, accessToken string) (string, error) {
-	// Verifikasi ID token menggunakan Google API
-	audience := os.Getenv("GOOGLE_CLIENT_ID") // Client ID dari Google API
+	godotenv.Load()
+	audience := os.Getenv("GOOGLE_CLIENT_ID")
+
 	payload, err := verifyIdToken(idToken, audience)
 	if err != nil {
-		return "", err // Invalid ID token
+		return "", err
 	}
 
 	// Mendapatkan informasi user dari ID token (misalnya email, sub, dll)
@@ -51,7 +53,7 @@ func (s *authServiceImpl) Login(idToken, accessToken string) (string, error) {
 	}
 
 	// Cari / tambah user di database
-	user, err := s.authRepo.FindOrCreateUser(googleID, email, userInfo.Name, userInfo.Picture, userInfo.BirthDate) // Gunakan s.authRepo
+	user, err := s.authRepo.FindOrCreateUser(googleID, email, userInfo.Name, userInfo.Picture, userInfo.BirthDate, 0.0, 0.0) // Gunakan s.authRepo
 	if err != nil {
 		return "", err // Error saat mencari atau menyimpan user
 	}
@@ -70,20 +72,24 @@ func (s *authServiceImpl) Login(idToken, accessToken string) (string, error) {
 }
 
 func verifyIdToken(idToken, audience string) (*idtoken.Payload, error) {
+	
 	// Verifikasi ID token dengan Google API
 	payload, err := idtoken.Validate(context.Background(), idToken, audience)
+	fmt.Println("audience: " + audience)
 	if err != nil {
-		return nil, errors.New("invalid Google ID token")
+
+		return nil, err
 	}
+
 	return payload, nil
 }
 
 type GoogleUserInfo struct {
-	Email         string `json:"email"`
-	Name          string `json:"name"`
-	Picture       string `json:"picture"`
-	PhoneNumber   string `json:"phone_number,omitempty"`
-	BirthDate     string `json:"birthdate,omitempty"`
+	Email       string `json:"email"`
+	Name        string `json:"name"`
+	Picture     string `json:"picture"`
+	PhoneNumber string `json:"phone_number,omitempty"`
+	BirthDate   string `json:"birthdate,omitempty"`
 }
 
 func getUserInfoFromAccessToken(accessToken string) (*GoogleUserInfo, error) {

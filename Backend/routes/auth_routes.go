@@ -8,6 +8,6 @@ import (
 func AuthRoutes(router *gin.RouterGroup, authController *controllers.AuthController) {
 	apiRoutes := router.Group("/auth")
 	{
-		apiRoutes.POST("/login", authController.LoginHandler()) 
+		apiRoutes.POST("/login", authController.LoginController()) 
 	}
 }

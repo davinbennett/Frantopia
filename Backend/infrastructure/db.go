@@ -1,9 +1,9 @@
 package infrastructure
 
 import (
+	"Backend/models"
 	"context"
 	"fmt"
-	"Backend/models"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,7 +20,7 @@ var (
 
 // InitPostgresDB initializes the PostgreSQL database connection.
 func InitPostgresDB() error {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s", 
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
 		"localhost", "postgres", "qwerty12", "frantopia-db", "5432", "disable", "Asia/Jakarta")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
@@ -41,7 +41,9 @@ func InitPostgresDB() error {
 
 // InitMongoDB initializes the MongoDB connection.
 func InitMongoDB() error {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://localhost:27017").SetServerAPIOptions(serverAPI))
+	
 	if err != nil {
 		return fmt.Errorf("failed to connect to MongoDB: %w", err)
 	}

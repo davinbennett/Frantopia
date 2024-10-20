@@ -2,12 +2,14 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/joho/godotenv"
 )
 
 func JWTMiddleware() gin.HandlerFunc {
@@ -31,6 +33,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			if errors.Is(err, jwt.ErrTokenExpired) {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has expired"})
 			} else {
+				fmt.Println("tessss")
 				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			}
 			c.Abort()
@@ -51,6 +54,7 @@ func JWTMiddleware() gin.HandlerFunc {
 }
 
 func validateToken(tokenString string) (*jwt.Token, error) {
+	godotenv.Load()
 	secret := os.Getenv("JWT_SECRET_KEY")
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

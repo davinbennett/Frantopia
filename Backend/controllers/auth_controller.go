@@ -16,7 +16,7 @@ func NewAuthController(authService services.AuthService) *AuthController {
 	return &AuthController{authService: authService}
 }
 
-func (c *AuthController) LoginHandler() gin.HandlerFunc {
+func (c *AuthController) LoginController() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var requestBody struct {
 			IDToken string `json:"idToken" binding:"required"`
