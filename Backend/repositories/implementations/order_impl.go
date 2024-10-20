@@ -3,8 +3,10 @@ package implementations
 import (
 	"Backend/models"
 	"Backend/repositories/interfaces"
+	// "context"
 	"database/sql"
 	"errors"
+	// "fmt"
 
 	// "fmt"
 	"time"
@@ -200,3 +202,18 @@ func (r *orderImpl) GetOrderFranchiseIDs(period, start, end string) ([]string, e
 
 	return franchiseIDs, nil
 }
+
+func (r *orderImpl) FindByID(orderID string) (*models.Orders, error) {
+	var order models.Orders
+
+	err := r.postgresDB.Where("order_id = ?", orderID).First(&order).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &order, nil
+}
+

@@ -3,9 +3,9 @@ package controllers
 
 import (
 	"Backend/services"
+	// "fmt"
 	"net/http"
 
-	// "fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,5 +91,24 @@ func (c *OrderController) GetCategoryAnalytics(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": categoryData,
+	})
+}
+
+func (c *OrderController) GetOrderByID(ctx *gin.Context) {
+	orderID := ctx.Param("id")
+	order, err := c.orderService.GetOrderByID(orderID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "Internal server error"})
+		return
+	}
+
+	if order == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "Order not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"data": order,
 	})
 }

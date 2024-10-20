@@ -3,6 +3,7 @@ package services
 
 import (
 	"Backend/repositories/interfaces"
+	"fmt"
 	// "fmt"
 )
 
@@ -10,6 +11,7 @@ type OrderService interface {
 	GetSalesAnalytics(period, start, end string) ([]map[string]interface{}, error)
 	GetTotalSold(period, start, end string) (float64, error)
 	GetCategoryAnalytics(period, start, end string) (map[string]interface{}, error)
+	GetOrderByID(orderID string) (map[string]interface{}, error)
 }
 
 type orderServiceImpl struct {
@@ -72,4 +74,35 @@ func (s *orderServiceImpl) GetCategoryAnalytics(period, start, end string) (map[
 	}
 
 	return result, nil
+}
+
+func (s *orderServiceImpl) GetOrderByID(orderID string) (map[string]interface{}, error) {
+	// Step 1: Get the order by ID from the orderRepo (Postgres)
+	order, err := s.orderRepo.FindByID(orderID)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	// fmt.Println(order)
+
+	// Step 2: Use the franchise ID from the order to get the franchise name from MongoDB
+	franchiseName, err := s.productRepo.GetNameByFranchiseID(order.FranchiseId)
+	if err != nil {
+		return nil, err
+	}
+
+	// fmt.Println(franchiseName)
+
+	response := map[string]interface{}{
+		"name":            franchiseName,
+		"status":          order.Status,
+		"date":            order.OrderDate,
+		"price-total":     order.TotalAmount,
+		"shipment-price":  order.ShipmentPriceTotal,
+		"insurance-price": order.InsurancePriceTotal,
+		"admin-price":     order.AdminPaymentPrice,
+	}
+
+	return response, nil
 }
