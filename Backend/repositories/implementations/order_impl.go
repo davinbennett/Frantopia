@@ -3,12 +3,11 @@ package implementations
 import (
 	"Backend/models"
 	"Backend/repositories/interfaces"
-	// "context"
+	"strings"
+
 	"database/sql"
 	"errors"
-	// "fmt"
 
-	// "fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -217,3 +216,38 @@ func (r *orderImpl) FindByID(orderID string) (*models.Orders, error) {
 	return &order, nil
 }
 
+func (r *orderImpl) FindByStatus(status string, page, limit int) ([]models.Orders, int, error) {
+	var orders []models.Orders
+	var totalItems int64
+
+	offset := (page - 1) * limit
+
+	lowerStatus := strings.ToLower(status)
+
+	if lowerStatus == "confirm" {
+		if err := r.postgresDB.Model(&models.Orders{}).
+			Where("LOWER(status) IN (?)", []string{"completed", "failed"}).
+			Count(&totalItems).
+			Limit(limit).
+			Offset(offset).
+			Find(&orders).Error; err != nil {
+			return nil, 0, err
+		}
+	} else {
+		if err := r.postgresDB.Model(&models.Orders{}).
+			Where("LOWER(status) = ?", lowerStatus).
+			Count(&totalItems).
+			Limit(limit).
+			Offset(offset).
+			Find(&orders).Error; err != nil {
+			return nil, 0, err
+		}
+	}
+
+	return orders, int(totalItems), nil
+}
+
+func (r *orderImpl) UpdateOrderStatus(orderID int, status string) error {
+	result := r.postgresDB.Model(&models.Orders{}).Where("order_id = ?", orderID).Update("status", status)
+	return result.Error
+}

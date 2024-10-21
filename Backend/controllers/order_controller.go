@@ -3,8 +3,10 @@ package controllers
 
 import (
 	"Backend/services"
-	// "fmt"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -110,5 +112,62 @@ func (c *OrderController) GetOrderByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": order,
+	})
+}
+
+func (c *OrderController) GetOrdersByStatus(ctx *gin.Context) {
+	status := ctx.Query("status")
+	page, _ := strconv.Atoi(ctx.Query("page"))
+	limit, _ := strconv.Atoi(ctx.Query("limit"))
+
+	orders, err := c.orderService.GetOrdersByStatus(status, page, limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"page": page,
+		"data": orders,
+	})
+}
+
+func (c *OrderController) UpdateOrderStatus(ctx *gin.Context) {
+	orderIDParam := ctx.Param("id")
+	orderID, err := strconv.Atoi(orderIDParam)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order ID"})
+		return
+	}
+
+	var requestBody struct {
+		Status string `json:"status"`
+	}
+	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+	fmt.Println(requestBody)
+
+	if strings.ToLower(requestBody.Status) != "accept" && strings.ToLower(requestBody.Status) != "decline" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status value"})
+		return
+	}
+
+	status := "Completed"
+	if strings.ToLower(requestBody.Status) == "decline" {
+		status = "Failed"
+	}
+
+	err = c.orderService.UpdateOrderStatus(orderID, status)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Order status updated successfully",
 	})
 }

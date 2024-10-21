@@ -25,8 +25,10 @@ func InitRoutes(router *gin.Engine, authController *controllers.AuthController) 
 			productService := services.NewProductService(productRepo)
 			productController := controllers.NewProductController(productService)
 
+			userRepo := implementations.NewUserImpl(postgresDB)
+
 			orderRepo := implementations.NewOrderImpl(postgresDB)
-			orderService := services.NewOrderService(orderRepo, productRepo)
+			orderService := services.NewOrderService(orderRepo, productRepo, userRepo)
 			orderController := controllers.NewOrderController(orderService)
 
 			ProductRoutes(protectedRoutes, productController)

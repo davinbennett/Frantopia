@@ -11,4 +11,5 @@ type Income struct {
 	Month     string             `bson:"month" json:"month,omitempty"`
 	Income    int                `bson:"income" json:"income,omitempty"`
 	CreatedAt time.Time          `bson:"created_at,omitempty"`
+	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
 }

@@ -21,7 +21,7 @@ type Franchise struct {
 	OutletSales       int32                `bson:"outlet_sales,omitempty" json:"outlet_sales,omitempty"`
 	CreatedAt         time.Time          `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt         time.Time          `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
-	PackageFranchises []PackageFranchise `bson:"package_franchises,omitempty" json:"package_franchises,omitempty"`
+	PackageFranchises []PackageFranchises `bson:"package_franchises,omitempty" json:"package_franchises,omitempty"`
 	Income            []Income           `bson:"income,omitempty" json:"income,omitempty"`
 	Status            string             `bson:"status,omitempty" json:"status,omitempty"`
 	Stock             int32                `bson:"stock,omitempty" json:"stock,omitempty"`

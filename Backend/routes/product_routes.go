@@ -15,7 +15,10 @@ func ProductRoutes(router *gin.RouterGroup, productController *controllers.Produ
 		apiRoutes.GET("/:id", productController.GetProductByID())
 		apiRoutes.GET("/:id/gallery", productController.GetProductGallery())
 		apiRoutes.GET("/:id/package/:packageId", productController.GetPackageByID())
+		apiRoutes.GET("/:id/category", productController.GetProductCategory)
 
-		apiRoutes.POST("", productController.CreateProduct) // TRAKHIR DISINI
+		apiRoutes.POST("/", productController.CreateProduct())
+
+		apiRoutes.PUT("/:id", productController.UpdateProduct())
 	}
 }

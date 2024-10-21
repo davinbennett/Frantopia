@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	models "Backend/models/products"
 	"Backend/services"
-	// "fmt"
 	"net/http"
 	"strconv"
 
@@ -88,7 +88,6 @@ func (pc *ProductController) GetProductByFilters() gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"code": 200,
-			"page": page,
 			"data": products,
 		})
 	}
@@ -152,3 +151,68 @@ func (c *ProductController) GetPackageByID() gin.HandlerFunc {
 	}
 }
 
+func (c *ProductController) CreateProduct() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		var product models.Franchise
+
+		if err := ctx.ShouldBindJSON(&product); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		err := c.productService.CreateProduct(product)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"data": "Product created successfully",
+		})
+	}
+}
+
+func (c *ProductController) UpdateProduct() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		productID := ctx.Param("id")
+
+		var updatedProduct models.Franchise
+
+		if err := ctx.ShouldBindJSON(&updatedProduct); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		err := c.productService.UpdateProduct(productID, updatedProduct)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"data": "Product updated successfully",
+		})
+	}
+}
+
+func (c *ProductController) GetProductCategory(ctx *gin.Context) {
+	productID := ctx.Param("id")
+
+	category, err := c.productService.GetProductCategoryByID(productID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if category == "" {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Product not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"product_id": productID,
+		"category":   category,
+	})
+}

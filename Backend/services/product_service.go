@@ -1,18 +1,25 @@
 package services
 
 import (
-	// models "Backend/models/products"
+	models "Backend/models/products"
 	"Backend/repositories/interfaces"
+	"math"
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	// "errors"
 )
 
 type ProductService interface {
 	GetTotalProducts() (int, error)
 	SearchProductByName(name string) ([]map[string]interface{}, error)
-	SearchByFilters(priceMin, priceMax, location, category string, page, limit int) ([]map[string]interface{}, error)
+	SearchByFilters(priceMin, priceMax, location, category string, page, limit int) (map[string]interface{}, error)
 	GetProductByID(productID string) (map[string]interface{}, error)
 	GetProductGallery(productID string) (map[string]interface{}, error)
 	GetPackageByID(productID string, packageID string) (map[string]interface{}, error)
+	CreateProduct(product models.Franchise) error
+	UpdateProduct(productID string, updatedProduct models.Franchise) error
+	GetProductCategoryByID(productID string) (string, error)
 }
 
 type productServiceImpl struct {
@@ -52,8 +59,8 @@ func (s *productServiceImpl) SearchProductByName(name string) ([]map[string]inte
 	return response, nil
 }
 
-func (s *productServiceImpl) SearchByFilters(priceMin, priceMax, location, category string, page, limit int) ([]map[string]interface{}, error) {
-	products, err := s.productRepo.FindByFilters(priceMin, priceMax, location, category, page, limit)
+func (s *productServiceImpl) SearchByFilters(priceMin, priceMax, location, category string, page, limit int) (map[string]interface{}, error) {
+	products, totalItems, err := s.productRepo.FindByFilters(priceMin, priceMax, location, category, page, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +81,17 @@ func (s *productServiceImpl) SearchByFilters(priceMin, priceMax, location, categ
 		})
 	}
 
-	return response, nil
+	totalPages := int(math.Ceil(float64(totalItems) / float64(limit)))
+
+	// Return paginated response
+	result := map[string]interface{}{
+		"products":     response,
+		"total_items":  totalItems,
+		"total_pages":  totalPages,
+		"current_page": page,
+	}
+
+	return result, nil
 }
 
 func (s *productServiceImpl) GetProductByID(productID string) (map[string]interface{}, error) {
@@ -141,4 +158,50 @@ func (s *productServiceImpl) GetPackageByID(productID string, packageID string) 
 	}
 
 	return response, nil
+}
+
+func (ps *productServiceImpl) CreateProduct(product models.Franchise) error {
+	product.CreatedAt = time.Now().UTC().Add(7 * time.Hour)
+	product.UpdatedAt = time.Now().Add(7 * time.Hour)
+
+	for i := range product.Income {
+		product.Income[i].IncomeID = primitive.NewObjectID()
+		product.Income[i].CreatedAt = time.Now().Add(7 * time.Hour)
+	}
+	for i := range product.PackageFranchises {
+		product.PackageFranchises[i].PackageID = primitive.NewObjectID()
+		product.PackageFranchises[i].CreatedAt = time.Now().Add(7 * time.Hour)
+	}
+
+	err := ps.productRepo.AddProduct(product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *productServiceImpl) UpdateProduct(productID string, updatedProduct models.Franchise) error {
+	for i := range updatedProduct.Income {
+		if updatedProduct.Income[i].IncomeID.IsZero() {
+			updatedProduct.Income[i].IncomeID = primitive.NewObjectID()
+			updatedProduct.Income[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+		}
+
+		updatedProduct.Income[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+	}
+
+	for i := range updatedProduct.PackageFranchises {
+		if updatedProduct.PackageFranchises[i].PackageID.IsZero() {
+			updatedProduct.PackageFranchises[i].PackageID = primitive.NewObjectID()
+			updatedProduct.PackageFranchises[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+		}
+
+		updatedProduct.PackageFranchises[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+	}
+
+	return s.productRepo.UpdateProduct(productID, updatedProduct)
+}
+
+func (s *productServiceImpl) GetProductCategoryByID(productID string) (string, error) {
+	return s.productRepo.GetProductCategoryByID(productID)
 }

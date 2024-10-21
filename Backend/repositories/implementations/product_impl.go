@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -86,10 +87,11 @@ func (r *productImpl) FindByName(name string) ([]*models.Franchise, error) {
 	return products, nil
 }
 
-func (r *productImpl) FindByFilters(priceMin, priceMax, location, category string, page, limit int) ([]*models.Franchise, error) {
+func (r *productImpl) FindByFilters(priceMin, priceMax, location, category string, page, limit int) ([]*models.Franchise, int64, error) {
 	var products []*models.Franchise
 
 	filter := bson.M{}
+
 	if priceMin != "" {
 		min, _ := strconv.ParseFloat(priceMin, 64)
 		filter["price"] = bson.M{"$gte": min}
@@ -112,21 +114,30 @@ func (r *productImpl) FindByFilters(priceMin, priceMax, location, category strin
 	// Pagination setting
 	skip := (page - 1) * limit
 
+	totalItems, err := r.mongoDB.Collection("franchises").CountDocuments(context.TODO(), filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
 	cursor, err := r.mongoDB.Collection("franchises").Find(context.TODO(), filter, options.Find().SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer cursor.Close(context.TODO())
 
 	for cursor.Next(context.TODO()) {
 		var product models.Franchise
 		if err := cursor.Decode(&product); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		products = append(products, &product)
 	}
 
-	return products, nil
+	if err := cursor.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return products, totalItems, nil
 }
 
 func (r *productImpl) GetNameByFranchiseID(franchiseID string) (string, error) {
@@ -216,4 +227,90 @@ func (r *productImpl) FindPackageByID(productID string, packageID string) (map[s
 	}
 
 	return nil, nil
+}
+
+func (r *productImpl) AddProduct(product models.Franchise) error {
+	for i := range product.PackageFranchises {
+		product.PackageFranchises[i].PackageID = primitive.NewObjectID()
+		product.PackageFranchises[i].CreatedAt = time.Now().Add(7 * time.Hour)
+		product.PackageFranchises[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+	}
+
+	for i := range product.Income {
+		product.Income[i].IncomeID = primitive.NewObjectID()
+		product.Income[i].CreatedAt = time.Now().Add(7 * time.Hour)
+		product.Income[i].UpdatedAt = time.Now().Add(7 * time.Hour)
+	}
+
+	_, err := r.mongoDB.Collection("franchises").InsertOne(context.TODO(), product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *productImpl) UpdateProduct(productID string, updatedProduct models.Franchise) error {
+	objectId, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objectId}
+
+	update := bson.M{
+		"$set": bson.M{
+			"name":               updatedProduct.Name,
+			"category":           updatedProduct.Category,
+			"established":        updatedProduct.Established,
+			"description":        updatedProduct.Description,
+			"price":              updatedProduct.Price,
+			"licensed":           updatedProduct.Licensed,
+			"rating":             updatedProduct.Rating,
+			"location":           updatedProduct.Location,
+			"deposit":            updatedProduct.Deposit,
+			"royalty_fee":        updatedProduct.RoyaltyFee,
+			"outlet_sales":       updatedProduct.OutletSales,
+			"stock":              updatedProduct.Stock,
+			"profile":            updatedProduct.Profile,
+			"gallery":            updatedProduct.Gallery,
+			"package_franchises": updatedProduct.PackageFranchises,
+			"income":             updatedProduct.Income,
+			"status":             updatedProduct.Status,
+			"updated_at":         time.Now().Add(7 * time.Hour),
+		},
+	}
+
+	_, err = r.mongoDB.Collection("franchises").UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *productImpl) GetProductCategoryByID(productID string) (string, error) {
+	objectId, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return "", err
+	}
+
+	filter := bson.D{{Key: "_id", Value: objectId}}
+	projection := bson.D{{Key: "category", Value: 1}}
+
+	var result struct {
+		Category string `bson:"category"`
+	}
+
+	err = r.mongoDB.Collection("franchises").FindOne(
+		context.Background(), 
+		filter, 
+		options.FindOne().SetProjection(projection),
+	).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", err
+	}
+
+	return result.Category, nil
 }
