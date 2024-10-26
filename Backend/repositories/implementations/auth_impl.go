@@ -72,6 +72,15 @@ func (r *AuthImpl) FindOrCreateUser(googleId, email, name, picture, dobStr strin
 	return nil, err
 }
 
+func (r *AuthImpl) GetUserID(googleID string) (uint, error) {
+	var user models.User
+	err := r.db.Select("user_id").Where("google_id = ?", googleID).First(&user).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.UserID, nil
+}
+
 // func (r *AuthImpl) FindByGoogleID(googleId string) (*models.User, error) {
 // 	var user models.User
 // 	if err := r.db.Where("google_id = ?", googleId).First(&user).Error; err != nil {

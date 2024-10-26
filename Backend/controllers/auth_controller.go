@@ -31,7 +31,7 @@ func (c *AuthController) LoginController() gin.HandlerFunc {
 			return
 		}
 
-		jwtToken, err := c.authService.Login(requestBody.IDToken, requestBody.AccessToken)
+		jwtToken, userID, err := c.authService.Login(requestBody.IDToken, requestBody.AccessToken)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":  http.StatusBadRequest,
@@ -44,6 +44,7 @@ func (c *AuthController) LoginController() gin.HandlerFunc {
 			"code": http.StatusOK,
 			"data": gin.H{
 				"jwtToken": jwtToken,
+				"user_id":  userID,
 			},
 		})
 	}

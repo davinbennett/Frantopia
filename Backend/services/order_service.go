@@ -88,8 +88,6 @@ func (s *orderServiceImpl) GetOrderByID(orderID string) (map[string]interface{},
 		return nil, err
 	}
 
-	// fmt.Println(order)
-
 	// Step 2: Use the franchise ID from the order to get the franchise name from MongoDB
 	franchiseName, err := s.productRepo.GetNameByFranchiseID(order.FranchiseId)
 	if err != nil {

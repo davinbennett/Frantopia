@@ -216,3 +216,23 @@ func (c *ProductController) GetProductCategory(ctx *gin.Context) {
 		"category":   category,
 	})
 }
+
+func (c *ProductController) GetPackages() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		productID := ctx.Param("id")
+
+		packages, err := c.productService.GetPackages(productID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":  http.StatusInternalServerError,
+				"error": "Failed to fetch packages",
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"data": packages,
+		})
+	}
+}

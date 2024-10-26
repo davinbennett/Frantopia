@@ -15,7 +15,7 @@ import (
 )
 
 type AuthService interface {
-	Login(idToken, accessToken string) (string, error)
+	Login(idToken, accessToken string) (string, uint, error)
 }
 
 type authServiceImpl struct {
@@ -27,36 +27,43 @@ func NewAuthService(repo interfaces.AuthRepository) AuthService {
 }
 
 // Login melakukan login dengan Google ID token
-func (s *authServiceImpl) Login(idToken, accessToken string) (string, error) {
+func (s *authServiceImpl) Login(idToken, accessToken string) (string, uint, error) {
 	godotenv.Load()
 	audience := os.Getenv("GOOGLE_CLIENT_ID")
 
 	payload, err := verifyIdToken(idToken, audience)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	// Mendapatkan informasi user dari ID token (misalnya email, sub, dll)
 	googleID, ok := payload.Claims["sub"].(string)
 	if !ok {
-		return "", errors.New("user ID not found in Google token")
+		return "", 0, errors.New("user ID not found in Google token")
 	}
 	email, ok := payload.Claims["email"].(string)
 	if !ok {
-		return "", errors.New("email not found in Google token")
+		return "", 0, errors.New("email not found in Google token")
 	}
 
 	// Verifikasi Access Token dan ambil informasi pengguna
 	userInfo, err := getUserInfoFromAccessToken(accessToken)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
 	// Cari / tambah user di database
 	user, err := s.authRepo.FindOrCreateUser(googleID, email, userInfo.Name, userInfo.Picture, userInfo.BirthDate, 0.0, 0.0) // Gunakan s.authRepo
 	if err != nil {
-		return "", err // Error saat mencari atau menyimpan user
+		return "", 0, err // Error saat mencari atau menyimpan user
 	}
+
+	// Ambil user_id dari database
+	userID, err := s.authRepo.GetUserID(googleID)
+	if err != nil {
+		return "", 0, err
+	}
+
 
 	// Buat JWT token untuk user jika login berhasil
 	jwtToken, err := helpers.CreateJWT(user.GoogleID, email)
@@ -65,10 +72,10 @@ func (s *authServiceImpl) Login(idToken, accessToken string) (string, error) {
 	fmt.Println("info profile: " + userInfo.Picture)
 	fmt.Println("info dob: " + userInfo.BirthDate)
 	if err != nil {
-		return "", errors.New("failed to create JWT")
+		return "", 0, errors.New("failed to create JWT")
 	}
 
-	return jwtToken, nil
+	return jwtToken, userID, nil
 }
 
 func verifyIdToken(idToken, audience string) (*idtoken.Payload, error) {

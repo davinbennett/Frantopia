@@ -20,6 +20,7 @@ type ProductService interface {
 	CreateProduct(product models.Franchise) error
 	UpdateProduct(productID string, updatedProduct models.Franchise) error
 	GetProductCategoryByID(productID string) (string, error)
+	GetPackages(productID string) ([]models.PackageFranchises, error)
 }
 
 type productServiceImpl struct {
@@ -204,4 +205,8 @@ func (s *productServiceImpl) UpdateProduct(productID string, updatedProduct mode
 
 func (s *productServiceImpl) GetProductCategoryByID(productID string) (string, error) {
 	return s.productRepo.GetProductCategoryByID(productID)
+}
+
+func (s *productServiceImpl) GetPackages(productID string) ([]models.PackageFranchises, error) {
+	return s.productRepo.GetPackages(productID)
 }

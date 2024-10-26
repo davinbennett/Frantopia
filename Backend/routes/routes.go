@@ -26,15 +26,25 @@ func InitRoutes(router *gin.Engine, authController *controllers.AuthController) 
 			productController := controllers.NewProductController(productService)
 
 			userRepo := implementations.NewUserImpl(postgresDB)
+			userService := services.NewUserService(userRepo)
+			userController := controllers.NewUserController(userService)
+
+			cartRepo := implementations.NewCartImpl(mongoDB)
+			cartService := services.NewCartService(cartRepo)
+			cartController := controllers.NewCartController(cartService)
 
 			orderRepo := implementations.NewOrderImpl(postgresDB)
 			orderService := services.NewOrderService(orderRepo, productRepo, userRepo)
 			orderController := controllers.NewOrderController(orderService)
 
+			shippingRepo := implementations.NewShippingImpl(postgresDB)
+			shippingService := services.NewShippingService(shippingRepo)
+			shippingController := controllers.NewShippingController(shippingService)
+
 			ProductRoutes(protectedRoutes, productController)
 			OrderRoutes(protectedRoutes, orderController)
-			// UserRoutes(protectedRoutes)
-			// CartRoutes(protectedRoutes)
+			UserRoutes(protectedRoutes, userController, cartController)
+			ShippingRoutes(protectedRoutes, shippingController)
 			// PaymentRoutes(protectedRoutes)
 			// ProductRoutes(protectedRoutes)
 			// ShippingRoutes(protectedRoutes)A

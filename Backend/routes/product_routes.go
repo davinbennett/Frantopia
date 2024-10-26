@@ -16,6 +16,7 @@ func ProductRoutes(router *gin.RouterGroup, productController *controllers.Produ
 		apiRoutes.GET("/:id/gallery", productController.GetProductGallery())
 		apiRoutes.GET("/:id/package/:packageId", productController.GetPackageByID())
 		apiRoutes.GET("/:id/category", productController.GetProductCategory)
+		apiRoutes.GET("/:id/package", productController.GetPackages())
 
 		apiRoutes.POST("/", productController.CreateProduct())
 

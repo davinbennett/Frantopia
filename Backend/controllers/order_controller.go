@@ -1,4 +1,3 @@
-// controllers/order_controller.go
 package controllers
 
 import (

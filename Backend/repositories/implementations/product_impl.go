@@ -301,8 +301,8 @@ func (r *productImpl) GetProductCategoryByID(productID string) (string, error) {
 	}
 
 	err = r.mongoDB.Collection("franchises").FindOne(
-		context.Background(), 
-		filter, 
+		context.Background(),
+		filter,
 		options.FindOne().SetProjection(projection),
 	).Decode(&result)
 	if err != nil {
@@ -313,4 +313,22 @@ func (r *productImpl) GetProductCategoryByID(productID string) (string, error) {
 	}
 
 	return result.Category, nil
+}
+
+func (r *productImpl) GetPackages(productID string) ([]models.PackageFranchises, error) {
+	objectID, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid product ID")
+	}
+
+	filter := bson.M{"_id": objectID}
+	var result struct {
+		PackageFranchises []models.PackageFranchises `bson:"package_franchises"`
+	}
+	err = r.mongoDB.Collection("franchises").FindOne(context.Background(), filter).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.PackageFranchises, nil
 }
