@@ -15,7 +15,7 @@ GoogleSignin.configure( {
    profileImageSize: 120,
 } );
 
-export const signInWithGoogle = async () =>
+export const signInWithGoogleOauth2 = async () =>
 {
    try
    {
@@ -30,12 +30,12 @@ export const signInWithGoogle = async () =>
    }
 };
 
-export const signOut = async () =>
+export const signOutOauth2 = async () =>
 {
    try
    {
       await GoogleSignin.signOut();
-      console.log( 'Google Sign-out' );
+      console.log( 'Google Sign-out Success' );
    } catch ( error )
    {
       console.error( error );

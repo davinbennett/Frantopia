@@ -4,18 +4,23 @@ import
 {
    useNavigation,
 } from '@react-navigation/native';
-import { loginWithGoogle } from '../../../controller/authController';
+import { loginWithGoogleController } from '../../../controller/authController';
+import { useDispatch } from 'react-redux';
 
 const LoginScreen = () =>
 {
    const navigation = useNavigation();
+   const dispatch = useDispatch();
 
    const handleLogin = async () =>
    {
       try
       {
-         const { jwtToken, isAdmin } = await loginWithGoogle();
-         navigation.replace( 'BottomTabNavigation', { jwtToken, isAdmin } );
+         const { isAdmin } = await loginWithGoogleController( dispatch );
+         console.log( 'isAdmin Login Screen: ', isAdmin );
+         navigation.replace( 'BottomTabNavigation',
+            { isAdmin }
+         );
       } catch ( error )
       {
          console.log( 'Login failed', error.message );

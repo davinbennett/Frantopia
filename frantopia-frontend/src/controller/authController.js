@@ -1,18 +1,19 @@
-import { signInWithGoogle } from "../infrastructure/oauth2";
+import { setAuthToken, setIsAdmin } from "../infrastructure/redux/slice/authSlice";
 import AuthImpl from "../repositories/implementations/authImpl";
 
-export const loginWithGoogle = async () =>
+export const loginWithGoogleController = async ( dispatch ) =>
 {
    try
    {
-      const { idToken, accessToken, userInfo } = await signInWithGoogle();
+      const { jwtToken, isAdmin } = await AuthImpl.loginWithGoogleImpl();
 
-      const jwtToken = await AuthImpl.loginUser( idToken, accessToken );
+      console.log( 'jwtToken Controller: ', jwtToken );
+      console.log( 'isAdmin Controller: ', isAdmin );
 
-      console.log( 'jwt:' ,jwtToken );
+      dispatch( setAuthToken( jwtToken ) );
+      dispatch( setIsAdmin( isAdmin ) );
 
-      const isAdmin = userInfo.data.user.email === 'davinbennet99@gmail.com';
-      return { jwtToken, isAdmin };
+      return { isAdmin };
    } catch ( error )
    {
       console.error( 'Login Error:', error );
@@ -20,15 +21,17 @@ export const loginWithGoogle = async () =>
    }
 };
 
-export const logout = async () =>
+export const logoutController = async ( dispatch ) =>
 {
    try
    {
-      await signOut();
-      console.log( 'User logged out' );
+      await AuthImpl.logoutUser();
+      dispatch( setAuthToken( null ) );
+      dispatch( setIsAdmin( false ) );
+      console.log( "User logged out" );
    } catch ( error )
    {
-      console.error( 'Logout Error:', error );
+      console.error( "Logout Error:", error );
       throw error;
    }
 };

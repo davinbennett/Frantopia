@@ -1,11 +1,39 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const saveToken = async ( token ) =>
+export const saveTokenAdminStorage = async ( jwtToken, isAdmin ) =>
 {
-   await AsyncStorage.setItem( 'jwtToken', token );
+   try
+   {
+      await AsyncStorage.setItem( "jwtToken", jwtToken );
+      await AsyncStorage.setItem( "isAdmin", JSON.stringify( isAdmin ) );
+   } catch ( error )
+   {
+      console.error( "Error saving token", error );
+   }
 };
 
-export const getToken = async () =>
+export const getTokenAdminStorage = async () =>
 {
-   return await AsyncStorage.getItem( 'jwtToken' );
+   try
+   {
+      const jwtToken = await AsyncStorage.getItem( "jwtToken" );
+      const isAdmin = JSON.parse( await AsyncStorage.getItem( "isAdmin" ) );
+      return { jwtToken, isAdmin };
+   } catch ( error )
+   {
+      console.error( "Error retrieving token", error );
+      return null;
+   }
+};
+
+export const removeTokenAdminStorage = async () =>
+{
+   try
+   {
+      await AsyncStorage.removeItem( "jwtToken" );
+      await AsyncStorage.removeItem( "isAdmin" );
+   } catch ( error )
+   {
+      console.error( "Error removing token", error );
+   }
 };

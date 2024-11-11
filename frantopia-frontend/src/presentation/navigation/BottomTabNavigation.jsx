@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { FontAwesome } from '@expo/vector-icons';
 import Profile from '../screens/profileScreen';
 import AdminHome from '../screens/homeScreen/admin';
@@ -9,62 +8,84 @@ import OrderList from '../screens/orderListScreen';
 import CustomerHome from '../screens/homeScreen/customer';
 import YourBusiness from '../screens/yourBusiness';
 import YourOrder from '../screens/yourOrder';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import { Pressable } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
 
-// nested
-const ProfileStackNavigator = () => (
-   <Stack.Navigator>
-      <Stack.Screen name="Profile" component={Profile} />
-      {/* <Stack.Screen name="Settings" component={Settings} /> */}
-   </Stack.Navigator>
-);
-
-// main
-const BottomTabNavigation = ( { jwtToken, isAdmin } ) =>
+const BottomTabNavigation = () =>
 {
+   const { isAdmin } = useSelector( ( state ) => state.auth );
+
    return (
       <Tab.Navigator
+         initialRouteName="Home"
          screenOptions={( { route } ) => ( {
             tabBarIcon: ( { color, size } ) =>
             {
                let iconName;
-
                if ( route.name === 'Home' )
                {
-                  iconName = 'home';
-               } else if ( route.name === 'BusinessList' || route.name === 'YourBusiness' )
+                  iconName = 'house';
+               } else if ( route.name === 'Business List' || route.name === 'Your Business' )
                {
-                  iconName = 'store';
-               } else if ( route.name === 'OrderList' || route.name === 'YourOrder' )
+                  iconName = 'shop';
+               } else if ( route.name === 'Order List' || route.name === 'Your Order' )
                {
                   iconName = 'file-text';
                } else if ( route.name === 'Profile' )
                {
                   iconName = 'user';
                }
-
-               return <FontAwesome name={iconName} size={size} color={color} />;
+               return <FontAwesome6 name={iconName} size={18} color={color} />;
             },
-            tabBarActiveTintColor: 'tomato',
-            tabBarInactiveTintColor: 'gray',
+            tabBarActiveTintColor: '#F3B02D',
+            tabBarInactiveTintColor: 'white',
+            tabBarStyle: {
+               backgroundColor: '#2D70F3',
+            },
+            tabBarButton: ( props ) => <Pressable {...props} />
+
          } )}
       >
          {isAdmin ? (
             <>
-               <Tab.Screen name="Home" component={AdminHome
-               } />
-               <Tab.Screen name="BusinessList" component={BusinessList} />
-               <Tab.Screen name="OrderList" component={OrderList} />
-               <Tab.Screen name="Profile" component={ProfileStackNavigator} options={{ headerShown: false }} />
+               <Tab.Screen
+                  name="Home"
+                  options={{headerShown: false}}
+                  component={AdminHome} />
+               <Tab.Screen
+                  name="Business List"
+                  options={{headerShown: false}}
+                  component={BusinessList} />
+               <Tab.Screen
+                  name="Order List"
+                  options={{headerShown: false}}
+                  component={OrderList} />
+               <Tab.Screen
+                  name="Profile"
+                  options={{headerShown: false}}
+                  component={Profile} />
             </>
          ) : (
             <>
-               <Tab.Screen name="Home" component={CustomerHome} />
-               <Tab.Screen name="YourBusiness" component={YourBusiness} />
-               <Tab.Screen name="YourOrder" component={YourOrder} />
-               <Tab.Screen name="Profile" component={ProfileStackNavigator} options={{ headerShown: false }} />
+               <Tab.Screen
+                  name="Home"
+                  options={{headerShown: false}}
+                  component={CustomerHome} />
+               <Tab.Screen
+                  name="Your Business"
+                  options={{headerShown: false}}
+                  component={YourBusiness} />
+               <Tab.Screen
+                  name="Your Order"
+                  options={{headerShown: false}}
+                  component={YourOrder} />
+               <Tab.Screen
+                  name="Profile"
+                  options={{headerShown: false}}
+                  component={Profile} />
             </>
          )}
       </Tab.Navigator>
