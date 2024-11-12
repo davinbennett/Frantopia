@@ -216,6 +216,32 @@ const AdminHome = () =>
     return [];
   };
 
+  const categoryBarData = [
+    {
+      value: 500, label: 'Food & Beverages', frontColor: '#177AD5', topLabelComponent: () => (
+        <Text className='mb-1 font-semibold'>50</Text>
+      ),
+    },
+    {
+      value: 785, label: 'Health & Beauty', frontColor: '#177AD5', topLabelComponent: () => (
+        <Text className='mb-1 font-semibold'>50</Text>
+      ),
+    },
+    {
+      value: 320, label: 'Barber & Salon', frontColor: '#177AD5', topLabelComponent: () => (
+        <Text className='mb-1 font-semibold'>50</Text>
+      ),
+    },
+    {
+      value: 600, label: 'Expedition', frontColor: '#177AD5', topLabelComponent: () => (
+        <Text className='mb-1 font-semibold'>50</Text>
+      ),
+    },
+    {
+      value: 900, frontColor: 'white'
+    },
+  ];
+
   return (
     <SafeAreaView className='bg-background flex-1' edges={[ 'left', 'right', 'bottom' ]}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
@@ -398,8 +424,45 @@ const AdminHome = () =>
       </View>
 
       {/* Container bawah */}
-      <View>
+      <View className='mx-7 my-5 bg-white rounded-xl p-5'>
+        {/* Best sell category */}
+        <View className='flex-row justify-between mb-5'>
+          <View className='flex-row'>
+            <View className='bg-blue rounded-lg items-center justify-center px-3'>
+              <MaterialIcons name="category" size={26} color="white" />
+            </View>
+            <View className='align-bottom ml-2'>
+              <Text className=''>
+                Best Selling Categories
+              </Text>
+              <Text className='text-4xl font-extrabold'>
+                Beauty
+              </Text>
+            </View>
+          </View>
+        </View>
 
+        {/* Grafik */}
+        <View className='border-2'>
+          <BarChart
+            barWidth={26}
+            noOfSections={3}
+            barBorderRadius={4}
+            frontColor="lightgray"
+            data={categoryBarData}
+            yAxisThickness={0}
+            xAxisThickness={0}
+            hideRules
+            hideYAxisText
+            referenceLine1Position={420}
+            referenceLine1Config={{
+              color: 'gray',
+              dashWidth: 2,
+              dashGap: 3,
+            }}
+            horizontal
+          />
+        </View>
       </View>
 
     </SafeAreaView>
