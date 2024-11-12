@@ -36,6 +36,7 @@ func (s *authServiceImpl) Login(idToken, accessToken string) (string, uint, erro
 		return "", 0, err
 	}
 
+
 	// Mendapatkan informasi user dari ID token (misalnya email, sub, dll)
 	googleID, ok := payload.Claims["sub"].(string)
 	if !ok {
@@ -84,7 +85,7 @@ func verifyIdToken(idToken, audience string) (*idtoken.Payload, error) {
 	payload, err := idtoken.Validate(context.Background(), idToken, audience)
 	fmt.Println("audience: " + audience)
 	if err != nil {
-
+		fmt.Println("verifyIdToken ERROR")
 		return nil, err
 	}
 

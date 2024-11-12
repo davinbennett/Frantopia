@@ -25,8 +25,8 @@ func NewOrderImpl(postgresDB *gorm.DB) interfaces.OrderRepository {
 
 func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]interface{}, error) {
 	var orderData []map[string]interface{}
-	period_2 := period
-
+	currentYear := time.Now().Year()
+	
 	var selectClause string
 	switch period {
 	case "monthly":
@@ -48,11 +48,9 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 
 	query := r.postgresDB.Model(&models.Orders{}).Select(selectClause)
 
-	// Filter tahun
-	if period_2 == "yearly" {
-		query = query.Where("EXTRACT(YEAR FROM order_date) >= EXTRACT(YEAR FROM NOW()) - 5")
-	} else {
-		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+	// Filter hanya untuk tahun saat ini jika monthly atau quarterly
+	if period == "monthly" || period == "quarterly" {
+		query = query.Where("EXTRACT(YEAR FROM order_date) = ?", currentYear)
 	}
 
 	switch period {
@@ -72,7 +70,6 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 	case "day":
 		startDate, _ := time.Parse("2006-01-02", start)
 		endDate, _ := time.Parse("2006-01-02", end)
-
 		endDate = endDate.AddDate(0, 0, 1)
 
 		query = query.Where("order_date BETWEEN ? AND ?", startDate, endDate).
@@ -85,8 +82,10 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 	}
 	defer rows.Close()
 
-	switch period_2 {
+	// Mapping data sesuai period
+	switch period {
 	case "monthly":
+		months := map[string]float64{"1": 0, "3": 0, "5": 0, "7": 0, "9": 0, "11": 0}
 		for rows.Next() {
 			var period sql.NullString
 			var totalSold sql.NullFloat64
@@ -94,12 +93,19 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 			if err != nil {
 				return nil, err
 			}
+			if period.Valid && totalSold.Valid {
+				months[period.String] = totalSold.Float64
+			}
+		}
+		for month, totalSold := range months {
 			orderData = append(orderData, map[string]interface{}{
-				"month":      period.String,
-				"total-sold": totalSold.Float64,
+				"month":      month,
+				"total-sold": totalSold,
 			})
 		}
+
 	case "quarterly":
+		quarters := map[string]float64{"1": 0, "2": 0, "3": 0, "4": 0}
 		for rows.Next() {
 			var period sql.NullString
 			var totalSold sql.NullFloat64
@@ -107,11 +113,17 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 			if err != nil {
 				return nil, err
 			}
+			if period.Valid && totalSold.Valid {
+				quarters[period.String] = totalSold.Float64
+			}
+		}
+		for quarter, totalSold := range quarters {
 			orderData = append(orderData, map[string]interface{}{
-				"quarter":    period.String,
-				"total-sold": totalSold.Float64,
+				"quarter":    quarter,
+				"total-sold": totalSold,
 			})
 		}
+
 	case "yearly":
 		for rows.Next() {
 			var period sql.NullString
@@ -125,6 +137,7 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 				"total-sold": totalSold.Float64,
 			})
 		}
+
 	case "day":
 		for rows.Next() {
 			var period sql.NullString
@@ -142,6 +155,7 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 
 	return orderData, nil
 }
+
 
 func (r *orderImpl) GetTotalSold(period, start, end string) (float64, error) {
 	var totalSold sql.NullFloat64
