@@ -21,6 +21,12 @@ export const signInWithGoogleOauth2 = async () =>
    {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      
+      if ( !userInfo )
+      {
+         throw new Error( "User not signed in" );
+      }
+
       const { idToken, accessToken } = await GoogleSignin.getTokens();
       return { idToken, accessToken, userInfo };
    } catch ( error )
