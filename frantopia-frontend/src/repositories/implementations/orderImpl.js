@@ -1,4 +1,4 @@
-import { fetchSalesAnalyticsAPI, fetchTotalSoldAPI } from "../../infrastructure/api/orderApi";
+import { fetchCategoryAnalysisAPI, fetchSalesAnalyticsAPI, fetchTotalSoldAPI } from "../../infrastructure/api/orderApi";
 import OrderInterface from "../interfaces/orderInterface";
 
 export default class OrderImpl extends OrderInterface
@@ -10,5 +10,9 @@ export default class OrderImpl extends OrderInterface
    async fetchSalesAnalytics ( period, startDate, endDate, jwtToken )
    {
       return await fetchSalesAnalyticsAPI( period, startDate, endDate, jwtToken );
+   }
+   async fetchCategoryAnalysis ( period, startDate, endDate, jwtToken )
+   {
+      return await fetchCategoryAnalysisAPI( period, startDate, endDate, jwtToken );
    }
 }

@@ -10,7 +10,13 @@ export const totalSoldOrderController = async ( period, startDate, endDate, jwtT
 
 export const fetchSalesAnalyticsController = async ( period, startDate, endDate, jwtToken ) =>
 {
+
    const data = await orderImpl.fetchSalesAnalytics( period, startDate, endDate, jwtToken );
+
+   if ( data === null && period == "day" )
+   {
+      return null;
+   }
 
    const transformedData = data.map( ( item ) =>
    {
@@ -36,13 +42,34 @@ export const fetchSalesAnalyticsController = async ( period, startDate, endDate,
          return a.label - b.label;
       } else if ( period === 'quarterly' )
       {
-         return parseInt( a.label.slice( 1 ) ) - parseInt( b.label.slice( 1 ) ); 
+         return parseInt( a.label.slice( 1 ) ) - parseInt( b.label.slice( 1 ) );
       } else if ( period === 'monthly' )
       {
-         return new Date( `2023-${ a.label }-01` ) - new Date( `2023-${ b.label }-01` ); 
+         return new Date( `2023-${ a.label }-01` ) - new Date( `2023-${ b.label }-01` );
       } else
       {
          return new Date( a.label ) - new Date( b.label );
       }
    } );
+};
+
+export const fetchCategoryAnalysisController = async ( period, startDate, endDate, jwtToken ) =>
+{
+   const { bestSellingCategory, categoryData } = await orderImpl.fetchCategoryAnalysis( period, startDate, endDate, jwtToken );
+
+   if ( !bestSellingCategory || categoryData.length === 0 )
+   {
+      return { bestSellingCategory: null, categoryData: [] };
+   }
+
+   const transformedCategoryData = categoryData.map( item => ( {
+      value: item.total,
+      label: item.name,
+      frontColor: '#177AD5',
+      topLabelComponent: () => (
+         <Text className='mb-1 font-semibold'>{item.total}</Text>
+      ),
+   } ) );
+
+   return { bestSellingCategory, categoryData: transformedCategoryData };
 };

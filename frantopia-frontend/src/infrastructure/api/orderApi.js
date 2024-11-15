@@ -46,7 +46,12 @@ export const fetchSalesAnalyticsAPI = async ( period, startDate, endDate, jwtTok
    try
    {
       const response = await axios.get( url, config );
-      const data = response.data.data[ 'order-data' ];
+      const data = response?.data?.data?.[ 'order-data' ];
+
+      if ( data === null )
+      {
+         return null;
+      }
 
       const transformedData = data.map( item =>
       {
@@ -68,9 +73,40 @@ export const fetchSalesAnalyticsAPI = async ( period, startDate, endDate, jwtTok
          }
       } );
 
-      console.log( 'data sales analytics API: ', transformedData );
-
       return transformedData;
+   } catch ( error )
+   {
+      console.error( 'Error fetching sales analytics API:', error );
+      throw error;
+   }
+};
+
+export const fetchCategoryAnalysisAPI = async ( period, startDate, endDate, jwtToken ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   let url = `${ API_ORDER_URL }/category-analytics?period=${ period }`;
+   if ( startDate && endDate )
+   {
+      url += `&start=${ startDate }&end=${ endDate }`;
+   }
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const bestSellingCategory = response?.data?.data?.bestSellingCategory;
+      const categoryData = response?.data?.data?.categoryData || [];
+
+      const transformedCategoryData = categoryData.map( item => ( {
+         name: item.name,
+         total: item.total,
+      } ) );
+
+      return { bestSellingCategory, categoryData: transformedCategoryData };
    } catch ( error )
    {
       console.error( 'Error fetching sales analytics API:', error );

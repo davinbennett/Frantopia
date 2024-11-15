@@ -7,4 +7,9 @@ export class ProductImpl extends ProductInterface
    {
       return await fetchTotalProduct( jwtToken );
    }
+
+   async fetchProducts ( page, limit, filters, jwtToken )
+   {
+      return await fetchProducts( page, limit, filters, jwtToken );
+   }
 }

@@ -10,7 +10,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import { BarChart } from "react-native-gifted-charts";
 import { getTotalProduct } from '../../../controller/productController';
-import { fetchSalesAnalyticsController, totalSoldOrderController } from '../../../controller/orderController';
+import { fetchCategoryAnalysisController, fetchSalesAnalyticsController, totalSoldOrderController } from '../../../controller/orderController';
+import DatePicker from 'react-native-date-picker';
 
 const AdminHome = () =>
 {
@@ -22,10 +23,11 @@ const AdminHome = () =>
 
   const [ searchQuery, setSearchQuery ] = useState( '' );
   const [ selectedOption, setSelectedOption ] = useState( 'Monthly' );
-  const [ showDatePicker, setShowDatePicker ] = useState( false );
-  const [ dateType, setDateType ] = useState( 'start' );
   const [ startDate, setStartDate ] = useState( null );
   const [ endDate, setEndDate ] = useState( null );
+
+  const [ open, setOpen ] = useState( false );
+  const [ date, setDate ] = useState( new Date() );
 
   const [ totalProduct, setTotalProduct ] = useState( 0 );
   const [ loading, setLoading ] = useState( true );
@@ -35,15 +37,67 @@ const AdminHome = () =>
   const [ barChartData, setBarChartData ] = useState( [] );
   const [ maxDataValue, setMaxDataValue ] = useState( 0 );
 
+  const [ barChartDataCategory, setBarChartDataCategory ] = useState( [] );
+  const [ maxDataValueCategory, setMaxDataValueCategory ] = useState( 0 );
+  const [ bestSellingCategory, setBestSellingCategory ] = useState( '-' );
+
   useEffect( () =>
   {
     if ( jwtToken )
     {
-      fetchTotalProduct();
-      loadTotalSold();
-      getBarChartData();
+      setLoading( true );
+
+      Promise.all( [
+        fetchTotalProduct(),
+        loadTotalSold(),
+        getBarChartData(),
+        getBarChartDataCategory(),
+      ] )
+        .catch( error => console.error( 'Error fetching data:', error ) )
+        .finally( () => setLoading( false ) );
+
+
     }
   }, [ jwtToken, selectedOption, startDate, endDate ] );
+
+  const calculateMaxDataValueCategory = ( data ) =>
+  {
+    return data.length > 0 ? Math.max( ...data.map( item => item.value ) ) : 0;
+  };
+
+  const getBarChartDataCategory = async () =>
+  {
+    try
+    {
+      setLoading( true );
+
+      const period = startDate && endDate ? 'day' : selectedOption;
+
+      const { bestSellingCategory, categoryData } = await fetchCategoryAnalysisController( period.toLowerCase(), startDate, endDate, jwtToken );
+
+      if ( bestSellingCategory === null )
+      {
+        setBestSellingCategory( '-' );
+      }
+
+      if ( !categoryData || categoryData.length === 0 )
+      {
+        setBarChartDataCategory( [] );
+      } else
+      {
+        setBestSellingCategory( bestSellingCategory );
+        setBarChartDataCategory( categoryData );
+        setMaxDataValueCategory( calculateMaxDataValueCategory( categoryData ) );
+      }
+    } catch ( error )
+    {
+      console.error( 'Error fetching bar chart data:', error );
+    } finally
+    {
+      setLoading( false );
+    }
+  };
+
 
   const calculateMaxDataValue = ( data ) =>
   {
@@ -57,19 +111,18 @@ const AdminHome = () =>
     {
       setLoading( true );
 
-      const formattedStartDate = startDate
-        ? new Date( startDate.setDate( startDate.getDate() + 1 ) ).toISOString().split( 'T' )[ 0 ]
-        : null;
-
-      const formattedEndDate = endDate
-        ? new Date( endDate.setDate( endDate.getDate() + 1 ) ).toISOString().split( 'T' )[ 0 ]
-        : null;
-
-      const period = formattedStartDate && formattedEndDate ? 'day' : selectedOption;
+      const period = startDate && endDate ? 'day' : selectedOption;
 
       const data = await fetchSalesAnalyticsController( period.toLowerCase(), startDate, endDate, jwtToken );
-      setBarChartData( data );
-      setMaxDataValue( calculateMaxDataValue( data ) );
+      // console.log( 'data admin:', data );
+      if ( data == null || data.length === 0 )
+      {
+        setBarChartData( [] );
+      } else
+      {
+        setBarChartData( data );
+        setMaxDataValue( calculateMaxDataValue( data ) );
+      }
     } catch ( error )
     {
       console.error( 'Error fetching bar chart data:', error );
@@ -86,17 +139,9 @@ const AdminHome = () =>
     {
       setLoading( true );
 
-      const formattedStartDate = startDate
-        ? new Date( startDate.setDate( startDate.getDate() + 1 ) ).toISOString().split( 'T' )[ 0 ]
-        : null;
+      const period = startDate && endDate ? 'day' : selectedOption;
 
-      const formattedEndDate = endDate
-        ? new Date( endDate.setDate( endDate.getDate() + 1 ) ).toISOString().split( 'T' )[ 0 ]
-        : null;
-
-      const period = formattedStartDate && formattedEndDate ? 'day' : selectedOption;
-
-      const totalSoldData = await totalSoldOrderController( period.toLowerCase(), formattedStartDate, formattedEndDate, jwtToken );
+      const totalSoldData = await totalSoldOrderController( period.toLowerCase(), startDate, endDate, jwtToken );
       setTotalSold( totalSoldData );
     } catch ( error )
     {
@@ -121,66 +166,14 @@ const AdminHome = () =>
     }
   };
 
-  const toggleDatePicker = () =>
-  {
-    setDateType( dateType === 'start' ? 'end' : 'start' );
-    setShowDatePicker( true );
-  };
-
-  const onDateChange = ( event, selectedDate ) =>
-  {
-    if ( selectedDate )
-    {
-      if ( endDate && endDate.getTime() === selectedDate.getTime() )
-      {
-        return;
-      }
-
-      const newEndDate = new Date( selectedDate );
-      setEndDate( newEndDate );
-
-      const newStartDate = new Date( newEndDate );
-      newStartDate.setDate( newEndDate.getDate() - 7 );
-      setStartDate( newStartDate );
-
-      setShowDatePicker( false );
-
-      setSelectedOption( 'day' );
-    }
-  };
-
   const handleOptionSelect = ( option ) =>
   {
     setSelectedOption( option );
     setStartDate( null );
     setEndDate( null );
-    setDateType( 'start' );
   };
 
   const isDateRangeSelected = startDate && endDate;
-
-  const categoryBarData = [
-    {
-      value: 500, label: 'Food & Beverages', frontColor: '#177AD5', topLabelComponent: () => (
-        <Text className='mb-1 font-semibold'>50</Text>
-      ),
-    },
-    {
-      value: 785, label: 'Health & Beauty', frontColor: '#177AD5', topLabelComponent: () => (
-        <Text className='mb-1 font-semibold'>50</Text>
-      ),
-    },
-    {
-      value: 320, label: 'Barber & Salon', frontColor: '#177AD5', topLabelComponent: () => (
-        <Text className='mb-1 font-semibold'>50</Text>
-      ),
-    },
-    {
-      value: 600, label: 'Expedition', frontColor: '#177AD5', topLabelComponent: () => (
-        <Text className='mb-1 font-semibold'>50</Text>
-      ),
-    },
-  ];
 
   return (
     <SafeAreaView className='bg-background flex-1' edges={[ 'left', 'right', 'bottom' ]}>
@@ -193,11 +186,15 @@ const AdminHome = () =>
       >
         <Image
           source={require( '../../../assets/icons/storeMiringKecil.png' )}
-          className='absolute top-0 -left-7'
+          className='absolute -top-4 -left-7'
         />
 
+        <Text className='text-3xl text-white font-semibold'>
+          Home
+        </Text>
+
         {/* Search Field */}
-        <View className='flex-1'>
+        {/* <View className='flex-1'>
           <Searchbar
             placeholder="Find your franchise"
             placeholderTextColor='#B1B1B1'
@@ -220,12 +217,12 @@ const AdminHome = () =>
               minHeight: 0,
             }}
           />
-        </View>
+        </View> */}
 
         {/* Cart Icon */}
-        <TouchableOpacity className="ml-3">
+        {/* <TouchableOpacity className="ml-3">
           <Ionicons name="cart-outline" size={26} color="white" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 18 }}>
@@ -287,31 +284,49 @@ const AdminHome = () =>
           </View>
 
           {/* Date Picker Icon */}
-          <TouchableOpacity onPress={toggleDatePicker} className='ml-6'>
+          <TouchableOpacity onPress={() => setOpen( true )} className='ml-6'>
             <AntDesign name="calendar" size={26} color="black" />
           </TouchableOpacity>
-        </View>
+          <DatePicker
+            modal
+            open={open}
+            date={date}
+            onConfirm={( selectedDate ) =>
+            {
+              setOpen( false );
+              setDate( selectedDate );
 
-        {/* DateTimePicker for Range Selection */}
-        {showDatePicker && (
-          <DateTimePicker
-            value={dateType === 'start' ? ( startDate || new Date() ) : ( endDate || new Date() )}
-            mode="date"
-            display="default"
-            onChange={onDateChange}
+              const formattedDate = selectedDate.toISOString().split( 'T' )[ 0 ];
+
+              const newStartDate = new Date( selectedDate );
+
+              newStartDate.setDate( newStartDate.getDate() - 7 );
+
+              const formattedStartDate = newStartDate.toISOString().split( 'T' )[ 0 ];
+
+              setStartDate( formattedStartDate );
+              setEndDate( formattedDate );
+
+              setSelectedOption( 'day' );
+            }}
+            onCancel={() =>
+            {
+              setOpen( false );
+            }}
+            mode='date'
           />
-        )}
+        </View>
 
         {/* Display Selected Date Range */}
         {startDate && endDate && (
-          <Text className="text-center mt-4 text-blue-600">
-            Selected Range: {startDate.toDateString()} - {endDate.toDateString()}
+          <Text className="text-center mt-5 font-semibold text-lg">
+            Selected Range Date: {startDate} - {endDate}
           </Text>
         )}
 
         {/* Container atas */}
         <View
-          className='mx-7 my-5 bg-white rounded-xl p-5'
+          className='mx-7 my-5 bg-white rounded-xl p-5 truncate '
           style={{
             shadowColor: 'black',
             shadowOffset: { width: 0, height: 2 },
@@ -320,16 +335,15 @@ const AdminHome = () =>
           }}
         >
           {/* Total Franchise & Total sold */}
-          <View className='flex-row justify-between mb-5'>
-            <View className='flex-row '>
-              <View className='bg-blue rounded-lg items-center justify-center px-3'>
+          <View className='flex-row justify-between mb-5 truncate'>
+            <View className='flex-row flex-wrap'>
+              <View className='bg-blue rounded-lg items-center justify-center px-3 truncate'>
                 <FontAwesome5 name="sort-amount-up" size={26} color="white" />
               </View>
               <View className='align-bottom ml-2'>
                 <Text
                   className=''
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
+                  numberOfLines={2}
                 >
                   Total Franchise
                 </Text>
@@ -363,24 +377,30 @@ const AdminHome = () =>
 
           {/* Grafik */}
           <View className=''>
-            <BarChart
-              barWidth={26}
-              noOfSections={3}
-              barBorderRadius={4}
-              frontColor="lightgray"
-              data={barChartData}
-              yAxisThickness={0}
-              xAxisThickness={0}
-              hideRules
-              hideYAxisText
-              referenceLine1Position={420}
-              referenceLine1Config={{
-                color: 'gray',
-                dashWidth: 2,
-                dashGap: 3,
-              }}
-              maxValue={maxDataValue*1.15}
-            />
+            {barChartData && barChartData.length > 0 ? (
+              <BarChart
+                barWidth={26}
+                noOfSections={3}
+                barBorderRadius={4}
+                frontColor="lightgray"
+                data={barChartData}
+                yAxisThickness={0}
+                xAxisThickness={0}
+                hideRules
+                hideYAxisText
+                referenceLine1Position={420}
+                referenceLine1Config={{
+                  color: 'gray',
+                  dashWidth: 2,
+                  dashGap: 3,
+                }}
+                maxValue={maxDataValue * 1.15}
+              />
+            ) : (
+              <Text className='text-lg font-medium text-center'>
+                Data is Empty
+              </Text>
+            )}
           </View>
         </View>
 
@@ -405,7 +425,7 @@ const AdminHome = () =>
                   Best Selling Categories
                 </Text>
                 <Text className='text-3xl font-extrabold'>
-                  Beauty
+                  {bestSellingCategory}
                 </Text>
               </View>
             </View>
@@ -413,25 +433,32 @@ const AdminHome = () =>
 
           {/* Grafik */}
           <View className=''>
-            <BarChart
-              barWidth={26}
-              noOfSections={3}
-              barBorderRadius={4}
-              frontColor="lightgray"
-              data={categoryBarData}
-              yAxisThickness={0}
-              xAxisThickness={0}
-              hideRules
-              hideYAxisText
-              referenceLine1Position={420}
-              referenceLine1Config={{
-                color: 'gray',
-                dashWidth: 2,
-                dashGap: 3,
-              }}
-              horizontal
-              // maxValue={maxDataValueCategory}
-            />
+            {barChartDataCategory && barChartDataCategory.length > 0 ? (
+              <BarChart
+                barWidth={26}
+                noOfSections={3}
+                barBorderRadius={4}
+                frontColor="lightgray"
+                data={barChartDataCategory}
+                yAxisThickness={0}
+                xAxisThickness={0}
+                hideRules
+                hideYAxisText
+                referenceLine1Position={420}
+                referenceLine1Config={{
+                  color: 'gray',
+                  dashWidth: 2,
+                  dashGap: 3,
+                }}
+                horizontal
+                maxValue={maxDataValueCategory * 1.03}
+              />
+            ) : (
+              <Text className="text-lg font-medium text-center">
+                Data is Empty
+              </Text>
+            )}
+
           </View>
         </View>
         <TouchableOpacity onPress={() => { console.log( jwtToken ); }}>

@@ -4,4 +4,9 @@ export class ProductInterface
    {
       throw new Error( 'Method not implemented' );
    }
+
+   async fetchProducts ( page, limit, filters, jwtToken )
+   {
+      throw new Error( 'Method not implemented' );
+   }
 }
