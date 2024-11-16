@@ -26,7 +26,7 @@ func NewOrderImpl(postgresDB *gorm.DB) interfaces.OrderRepository {
 func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]interface{}, error) {
 	var orderData []map[string]interface{}
 	currentYear := time.Now().Year()
-	
+
 	var selectClause string
 	switch period {
 	case "monthly":
@@ -156,7 +156,6 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 	return orderData, nil
 }
 
-
 func (r *orderImpl) GetTotalSold(period, start, end string) (float64, error) {
 	var totalSold sql.NullFloat64
 
@@ -264,4 +263,18 @@ func (r *orderImpl) FindByStatus(status string, page, limit int) ([]models.Order
 func (r *orderImpl) UpdateOrderStatus(orderID int, status string) error {
 	result := r.postgresDB.Model(&models.Orders{}).Where("order_id = ?", orderID).Update("status", status)
 	return result.Error
+}
+
+func (r *orderImpl) FindOrderIdByFranchiseId(franchiseId string) (*uint, error) {
+	var order models.Orders
+
+	err := r.postgresDB.Where("franchise_id = ?", franchiseId).First(&order).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &order.ID, nil
 }

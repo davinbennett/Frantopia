@@ -7,8 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
-
+	"regexp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -87,7 +88,19 @@ func (r *productImpl) FindByName(name string) ([]*models.Franchise, error) {
 	return products, nil
 }
 
+func getFirstWord(location string) string {
+	location = strings.ReplaceAll(location, "+", " ")
+
+	location = regexp.MustCompile(`[^\w\s]`).ReplaceAllString(location, "")
+
+	parts := strings.Fields(location) 
+	firstWord := strings.TrimSpace(parts[0])
+
+	return firstWord
+}
+
 func (r *productImpl) FindByFilters(priceMin, priceMax, location, category string, page, limit int) ([]*models.Franchise, int64, error) {
+
 	var products []*models.Franchise
 
 	filter := bson.M{}
@@ -105,7 +118,13 @@ func (r *productImpl) FindByFilters(priceMin, priceMax, location, category strin
 		}
 	}
 	if location != "" {
-		filter["location"] = bson.M{"$regex": location, "$options": "i"}
+		firstWord := getFirstWord(location)
+		regexPattern := fmt.Sprintf(".*%s.*", firstWord)
+		fmt.Println("WORD: ", regexPattern)
+
+		filter["location"] = bson.M{"$regex": `.*` + regexPattern + `.*`, "$options": "i"}
+
+		fmt.Println("fliter:", filter["location"])
 	}
 	if category != "" {
 		filter["category"] = category

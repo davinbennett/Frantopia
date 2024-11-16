@@ -14,6 +14,7 @@ type OrderService interface {
 	GetOrderByID(orderID string) (map[string]interface{}, error)
 	GetOrdersByStatus(status string, page, limit int) (map[string]interface{}, error)
 	UpdateOrderStatus(orderID int, status string) error
+	GetOrderIdByFranchiseId(franchiseId string) (*uint, error)
 }
 
 type orderServiceImpl struct {
@@ -163,4 +164,8 @@ func (s *orderServiceImpl) GetOrdersByStatus(status string, page, limit int) (ma
 
 func (s *orderServiceImpl) UpdateOrderStatus(orderID int, status string) error {
 	return s.orderRepo.UpdateOrderStatus(orderID, status)
+}
+
+func (s *orderServiceImpl) GetOrderIdByFranchiseId(franchiseId string) (*uint, error) {
+	return s.orderRepo.FindOrderIdByFranchiseId(franchiseId)
 }

@@ -170,3 +170,30 @@ func (c *OrderController) UpdateOrderStatus(ctx *gin.Context) {
 		"message": "Order status updated successfully",
 	})
 }
+
+func (c *OrderController) GetIdOrderByFranchiseId(ctx *gin.Context) {
+	franchiseIdParam := ctx.Param("franchiseId")
+
+	orderID, err := c.orderService.GetOrderIdByFranchiseId(franchiseIdParam)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if orderID == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": 200,
+			"data": gin.H{
+				"order_id": nil,
+			},
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
+		"data": gin.H{
+			"order_id": *orderID,
+		},
+	})
+}

@@ -14,6 +14,7 @@ func OrderRoutes(router *gin.RouterGroup, orderController *controllers.OrderCont
 		apiRoutes.GET("/category-analytics", orderController.GetCategoryAnalytics)
 		apiRoutes.GET("/:id", orderController.GetOrderByID)
 		apiRoutes.GET("/", orderController.GetOrdersByStatus)
+		apiRoutes.GET("/franchise-id/:franchiseId", orderController.GetIdOrderByFranchiseId)
 		
 		apiRoutes.PUT("/:id/status", orderController.UpdateOrderStatus)
 	}
