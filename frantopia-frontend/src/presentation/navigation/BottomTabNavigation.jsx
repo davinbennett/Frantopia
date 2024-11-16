@@ -1,5 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import Profile from '../screens/profileScreen';
 import AdminHome from '../screens/homeScreen/admin';
@@ -11,8 +13,101 @@ import YourOrder from '../screens/yourOrder';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { Pressable } from 'react-native';
 import { useSelector } from 'react-redux';
+import InformationAdmin from '../screens/detailScreen/admin/informationAdmin';
+import DetailsAdmin from '../screens/detailScreen/admin/details';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+const TopTab = createMaterialTopTabNavigator();
+
+const ProductTopTabs = ( { route, navigation } ) =>
+{
+   const { id, name } = route.params;
+   const screenHeight = Dimensions.get( 'screen' ).height;
+   const windowHeight = Dimensions.get( 'window' ).height;
+   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
+
+   React.useEffect( () =>
+   {
+      navigation.setOptions( {
+         contentStyle: {
+            backgroundColor: '#f3f4fe',
+         },
+         headerShown: true,
+         header: () => (
+            <View
+               className="bg-blue flex-row px-5 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center"
+               style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8, marginBottom: 18 }}
+            >
+               <Image
+                  source={require( '../../assets/icons/storeMiringKecil.png' )}
+                  className='absolute -top-4 -left-7'
+               />
+               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TouchableOpacity
+                     onPress={() => navigation.goBack()}
+                  >
+                     <MaterialIcons name="keyboard-arrow-left" size={32} color="white" />
+                  </TouchableOpacity>
+                  <Text className='text-3xl text-white font-semibold ml-2'>
+                     {name}
+                  </Text>
+               </View>
+            </View>
+         ),
+      } );
+   }, [ navigation ] );
+
+   return (
+      <TopTab.Navigator
+         screenOptions={{
+            tabBarStyle: {
+               backgroundColor: 'white',
+               marginHorizontal: 25,
+               borderRadius: 12,
+               marginBottom: 0
+            },
+            tabBarLabelStyle: {
+               fontWeight: 'bold',
+            },
+            tabBarIndicatorStyle: {
+               backgroundColor: '#2d70f3',
+               height: 3,
+               width: '45%',
+               left: '3%',
+               borderRadius: 50
+            },
+         }}
+      >
+         <TopTab.Screen name="Informations">
+            {( props ) => <InformationAdmin {...props} id={id} name={name} />}
+         </TopTab.Screen>
+         <TopTab.Screen name="Details">
+            {( props ) => <DetailsAdmin {...props} id={id} name={name} />}
+         </TopTab.Screen>
+      </TopTab.Navigator>
+   );
+};
+
+const BusinessStack = () => (
+   <Stack.Navigator
+      screenOptions={{ animation: 'none' }}
+   >
+      <Stack.Screen
+         name="BusinessList"
+         component={BusinessList}
+         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+         name="ProductDetail"
+         component={ProductTopTabs}
+         options={{ headerShown: false }}
+      />
+   </Stack.Navigator>
+);
 
 const BottomTabNavigation = () =>
 {
@@ -45,6 +140,7 @@ const BottomTabNavigation = () =>
             tabBarStyle: {
                backgroundColor: '#2D70F3',
             },
+            display: route.name === 'BusinessStack' ? 'none' : 'flex',
             tabBarButton: ( props ) => <Pressable {...props} />
 
          } )}
@@ -53,38 +149,39 @@ const BottomTabNavigation = () =>
             <>
                <Tab.Screen
                   name="Home"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={AdminHome} />
                <Tab.Screen
                   name="Business List"
-                  options={{headerShown: false}}
-                  component={BusinessList} />
+                  options={{ headerShown: false }}
+                  component={BusinessStack}
+               />
                <Tab.Screen
                   name="Order List"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={OrderList} />
                <Tab.Screen
                   name="Profile"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={Profile} />
             </>
          ) : (
             <>
                <Tab.Screen
                   name="Home"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={CustomerHome} />
                <Tab.Screen
                   name="Your Business"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={YourBusiness} />
                <Tab.Screen
                   name="Your Order"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={YourOrder} />
                <Tab.Screen
                   name="Profile"
-                  options={{headerShown: false}}
+                  options={{ headerShown: false }}
                   component={Profile} />
             </>
          )}

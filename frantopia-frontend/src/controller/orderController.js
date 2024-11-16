@@ -1,3 +1,4 @@
+import { fetchInformationApi, getOrderIdByProductIdApi } from "../infrastructure/api/orderApi";
 import OrderImpl from "../repositories/implementations/orderImpl";
 import { Text } from "react-native";
 
@@ -72,4 +73,30 @@ export const fetchCategoryAnalysisController = async ( period, startDate, endDat
    } ) );
 
    return { bestSellingCategory, categoryData: transformedCategoryData };
+};
+
+export const fetchInformationController = async ( jwtToken, productId ) =>
+{
+   const { orderId } = await getOrderIdByProductIdApi( jwtToken, productId );
+
+   if ( !orderId )
+   {
+      return {
+         status: null,
+         date: null,
+         priceTotal: null,
+         shipmentPrice: null,
+         insurancePrice: null,
+         adminPrice: null,
+      };
+   }
+
+   const { status, date, priceTotal, shipmentPrice, insurancePrice, adminPrice } = await fetchInformationApi( jwtToken, orderId );
+
+   if ( !status || !date || !priceTotal || !shipmentPrice || !insurancePrice || !adminPrice )
+   {
+      return { status: null, date: null, priceTotal: null, shipmentPrice: null, insurancePrice: null, adminPrice: null };
+   }
+
+   return { status, date, priceTotal, shipmentPrice, insurancePrice, adminPrice };
 };

@@ -1,6 +1,6 @@
 import { fetchProductsApi } from "../infrastructure/api/productApi";
 import { ProductImpl } from "../repositories/implementations/productImpl";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 const productImpl = new ProductImpl();
 
 export const getTotalProduct = async ( jwtToken ) =>
@@ -10,39 +10,35 @@ export const getTotalProduct = async ( jwtToken ) =>
 
 export const useProductListController = () =>
 {
-   // State untuk pagination dan produk
    const [ currentPage, setCurrentPage ] = useState( 1 );
-   const [ hasMore, setHasMore ] = useState( true ); // Menandakan apakah masih ada produk lebih banyak
+   const [ hasMore, setHasMore ] = useState( true );
    const [ products, setProducts ] = useState( [] );
    const [ loading, setLoading ] = useState( false );
    let limit = 6;
 
-   // Fungsi untuk memuat lebih banyak produk
-   const loadMore = async ( filters, jwtToken ) =>
+   useEffect( () =>
    {
-      if ( !hasMore || loading ) return;  // Jika tidak ada halaman lagi atau sedang loading, hentikan
+      setCurrentPage( 1 );
+      setHasMore( true );
+      setProducts( [] );
+   }, [] );
 
-      setLoading( true );  // Menandakan loading sedang berjalan
-
+   const getDataByFilter = async ( filters, jwtToken ) =>
+   {
+      setLoading( true );
       try
       {
-         // Panggil API untuk mendapatkan produk berdasarkan halaman dan filter
-         const data = await fetchProductsApi( currentPage, limit, filters, jwtToken );
-
-         // Ambil produk baru dan total halaman dari response
+         const data = await fetchProductsApi( 1, limit, filters, jwtToken );
          const { products: newProducts, total_pages } = data.data;
 
-         // Update state produk
-         setProducts( ( prevProducts ) => [ ...prevProducts, ...newProducts ] );
-
-         // Update status pagination
+         setProducts( newProducts );
          if ( currentPage < total_pages )
          {
             setHasMore( true );
-            setCurrentPage( ( prevPage ) => prevPage + 1 );
+            setCurrentPage( 2 );
          } else
          {
-            setHasMore( false ); // Tidak ada produk lg
+            setHasMore( false ); 
          }
       } catch ( error )
       {
@@ -53,10 +49,46 @@ export const useProductListController = () =>
       }
    };
 
+   const loadMore = async ( filters, jwtToken ) =>
+   {
+      if ( !hasMore || loading ) return;
+      setLoading( true );
+      try
+      {
+         const data = await fetchProductsApi( currentPage, limit, filters, jwtToken );
+         const { products: newProducts, total_pages } = data.data;
+
+         setProducts( ( prevProducts ) => [ ...prevProducts, ...newProducts ] );
+         if ( currentPage < total_pages )
+         {
+            setHasMore( true );
+            setCurrentPage( ( prevPage ) => prevPage + 1 );
+         } else
+         {
+            setHasMore( false );
+         }
+      } catch ( error )
+      {
+         console.error( "Error fetching products:", error );
+      } finally
+      {
+         setLoading( false );
+      }
+   };
+
+   const resetPagination = () =>
+   {
+      setCurrentPage( 1 );
+      setHasMore( true );
+      setProducts( [] );
+   };
+
    return {
-      products,       // Data produk yang telah dimuat
-      hasMore,        // Status apakah masih ada produk lebih lanjut
-      loading,        // Status loading
-      loadMore,       // Fungsi untuk load lebih banyak produk
+      products,
+      hasMore,
+      loading,
+      loadMore,
+      getDataByFilter,
+      resetPagination, 
    };
 };

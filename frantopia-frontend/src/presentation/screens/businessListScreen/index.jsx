@@ -10,12 +10,14 @@ import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { useProductListController } from '../../../controller/productController';
 import { fetchProductsApi } from '../../../infrastructure/api/productApi';
-
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { useNavigation } from '@react-navigation/native';
 
 const categoryIcons = {
-   'Food & Beverage': 'food',
-   'Barber & Salon': 'food',
-   'Health & Beauty': 'spa'
+   "Barber & Salon": { library: MaterialIcons, name: "content-cut" },
+   "Food & Beverage": { library: MaterialIcons, name: "local-dining" },
+   "Expedition": { library: MaterialIcons, name: "airport-shuttle" },
+   "Health & Beauty": { library: MaterialIcons, name: "spa" },
 };
 
 const formatPrice = ( price ) =>
@@ -43,79 +45,126 @@ const BusinessList = () =>
 
    // BUSINESS LIST
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
-   const { products, hasMore, loading, loadMore } = useProductListController();
+   const { products, hasMore, loading, loadMore, getDataByFilter, resetPagination } = useProductListController();
 
-   const filters = {
+   const [ filters, setFilters ] = useState( {
+      priceMin: null,
+      priceMax: null,
+      category: null,
+      location: null,
+   } );
 
-   };
+   // const handlePressDetail = (id) =>
+   // {
+   //    const navigation = useNavigation();
+   //    navigation.navigate( 'ProductDetail', { id, initialTab: 'Information' } );
+   //    console.log('press i')
+   // };
 
-   // Memuat produk pertama kali
-   useEffect( () =>
+   const navigation = useNavigation();
+
+   const renderItem = ( { item } ) =>
    {
-      loadMore( filters, jwtToken );
-   }, [] );
 
-   const renderItem = ( { item } ) => (
-      <View className="rounded-xl shadow-md overflow-hidden bg-white flex-1 mb-3">
+      const handlePressDetail = ( ) =>
+      {
+         navigation.navigate( 'ProductDetail', { 
+            id: item.id, 
+            name: item.name  
+         } );
+      };
 
-         {/* image profile */}
-         <View className='h-[90]'>
-            <ImageBackground
-               source={{ uri: item.profile }}
-               className="w-full h-full"
-               imageStyle={{ resizeMode: 'cover' }}
-            />
-         </View>
+      const handlePressEdit = () =>
+      {
 
-         {/* status */}
-         <View className={`absolute top-2 right-2 px-2 py-1 rounded-full ${ item.status === 'sold' ? 'bg-red-500' : 'bg-green-500' }`}>
-            <Text className="text-white text-xs font-medium px-1">{item.status}</Text>
-         </View>
+      };
 
-         {/* Logo pensil & info */}
-         <View className="absolute bottom-8 right-2 flex-row">
-            <TouchableOpacity className="bg-yellow p-2 rounded-full mr-1">
-               <Icon name="pencil" size={14} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-yellow p-2 rounded-full">
-               <Icon name="information" size={14} color="#FFF" />
-            </TouchableOpacity>
-         </View>
+      return (
+         <View className="rounded-xl shadow-md overflow-hidden bg-white flex-1 mb-3">
 
-         {/* content */}
-         <View className="pt-2  px-3">
-            <Text className="font-bold text-lg text-ellipsis overflow-hidden whitespace-nowrap" numberOfLines={1}>
-               {item.name}
-            </Text>
-            <View className="flex-row items-center mt-1">
-               {typeof categoryIcons[ item.category ] === 'string' ? (
-                  <Icon name={categoryIcons[ item.category ]} size={16} color="#2d70f3" />
+            {/* image profile */}
+            <View className='h-[90]'>
+               {loading ? (
+                  <SkeletonPlaceholder>
+                     <SkeletonPlaceholder.Item width="100%" height="100%" />
+                  </SkeletonPlaceholder>
                ) : (
-                  <Image source={{ uri: categoryIcons[ item.category ] }} className="w-4 h-4 mr-1" />
+                  <ImageBackground
+                     source={{ uri: item.profile }}
+                     className="w-full h-full"
+                     imageStyle={{ resizeMode: 'cover' }}
+                  />
                )}
-               <Text className="text-xs ml-1 text-[#515151]">{item.category}</Text>
             </View>
-            <Text className="text-xs mt-1">est. {item.established}</Text>
-            <Text className="text-xs text-[#515151] mt-1">Start from:</Text>
-            <Text className='font-bold text-blueDark'>{formatPrice( item.price )}</Text>
-         </View>
 
-         {/*  FOOTER */}
-         <View className="flex-row mt-1 w-full">
-            <View className="flex-row items-center bg-grayLight justify-between w-full px-3 py-1">
-               <View className='flex-row gap-x-1'>
-                  <Image source={{ uri: 'https://cdn0.iconfinder.com/data/icons/new-year-holidays-set/200/NewYearIcon7-01-1024.png' }} className="w-4 h-4" />
-                  <Text className="text-xs">{item.rating}</Text>
+            {/* status */}
+            <View className={`absolute top-2 right-2 px-2 py-1 rounded-full ${ item.status === 'sold' ? 'bg-red-500' : 'bg-green-500' }`}>
+               <Text className="text-white text-xs font-medium px-1">{item.status}</Text>
+            </View>
+
+            {/* Logo pensil & info */}
+            <View className="absolute bottom-8 right-2 flex-row">
+               <TouchableOpacity
+                  className="bg-yellow p-2 rounded-full mr-1 z-10"
+                  onPress={() => handlePressEdit()}
+               >
+                  <Icon name="pencil" size={14} color="#FFF" />
+               </TouchableOpacity>
+               <TouchableOpacity
+                  className="bg-yellow p-2 rounded-full z-10"
+                  onPress={() => handlePressDetail()}
+               >
+                  <Icon name="information" size={14} color="#FFF" />
+               </TouchableOpacity>
+            </View>
+
+            {/* content */}
+            <View className="pt-2  px-3">
+               <Text className="font-bold text-lg text-ellipsis overflow-hidden whitespace-nowrap" numberOfLines={1}>
+                  {item.name}
+               </Text>
+               <View className="flex-row items-center mt-1">
+                  {
+                     categoryIcons[ item.category ] ? (
+                        React.createElement(
+                           categoryIcons[ item.category ].library,
+                           {
+                              name: categoryIcons[ item.category ].name,
+                              size: 16,
+                              color: "#2d70f3",
+                           }
+                        )
+                     ) : (
+                        <Image source={{ uri: categoryIcons[ item.category ] }} className="w-4 h-4 mr-1" />
+                     )
+                  }
+                  <Text className="text-xs ml-1 text-[#515151]">{item.category}</Text>
                </View>
-               <View>
-                  <Text className="text-xs">{item.affiliate}</Text>
+               <Text className="text-xs mt-1">est. {item.established}</Text>
+
+               <Text className="text-xs text-[#515151] mt-1">Start from:</Text>
+               <Text className='font-bold text-blueDark'>{formatPrice( item.price )}</Text>
+
+            </View>
+
+            {/*  FOOTER */}
+            <View className="flex-row mt-1 w-full">
+               <View className="flex-row items-center bg-grayLight justify-between w-full px-3 py-1">
+                  <View className='flex-row gap-x-1'>
+                     <MaterialIcons name="star" size={13} color="#FFBF00" />
+                     <Text className="text-xs">{item.rating}</Text>
+                  </View>
+                  <View className='flex-row items-center gap-x-1'>
+                     <MaterialIcons name="location-on" size={13} color="#2d70f3" />
+                     <Text className="text-xs">{item.location}</Text>
+                  </View>
+
                </View>
             </View>
+
          </View>
-
-      </View>
-   );
-
+      );
+   };
 
 
    // Location
@@ -132,7 +181,12 @@ const BusinessList = () =>
    const handleSelectionPrice = ( value ) =>
    {
       setSelectedPrice( value );
-      if ( value === "<10000000" )
+      if ( value === "" )
+      {
+         setMinPrice( null );
+         setMaxPrice( null );
+      }
+      else if ( value === "<10000000" )
       {
          setMinPrice( null );
          setMaxPrice( 9999999 );
@@ -159,7 +213,46 @@ const BusinessList = () =>
       setSelectedCategory( value );
    };
 
+   useEffect( () =>
+   {
+      console.log( "Updated filters top:", filters );
+      resetPagination();
+      getDataByFilter( filters, jwtToken );
 
+   }, [ filters, jwtToken ] );
+
+   const handleLoadMore = () =>
+   {
+      if ( !hasMore || loading ) return;
+      loadMore( filters, jwtToken );
+   };
+
+   useEffect( () =>
+   {
+      const updatedFilters = {};
+
+      if ( minPrice !== null )
+      {
+         updatedFilters.priceMin = minPrice.toString();
+      }
+
+      if ( maxPrice !== null )
+      {
+         updatedFilters.priceMax = maxPrice.toString();
+      }
+
+      if ( selectedCategory )
+      {
+         updatedFilters.category = selectedCategory;
+      }
+
+      if ( selectedPlace )
+      {
+         updatedFilters.location = selectedPlace.name;
+      }
+
+      setFilters( updatedFilters );
+   }, [ minPrice, maxPrice, selectedCategory, selectedPlace ] );
 
    return (
       <SafeAreaView className="flex-1 bg-background" edges={[ 'left', 'right', 'bottom' ]}>
@@ -181,6 +274,7 @@ const BusinessList = () =>
          </View>
 
          <FlatList
+         showsVerticalScrollIndicator={false}
             data={[]}
             renderItem={null}
             keyExtractor={() => null}
@@ -228,16 +322,19 @@ const BusinessList = () =>
                                  value={selectedPrice}
                               >
                                  <View className="flex-row items-center mb-2">
-                                    <RadioButton value="<10000000" />
+                                    <RadioButton value="" color='#062DF6' />
+                                    <Text className="ml-2">{"All"}</Text>
+                                 </View>
+                                 <View className="flex-row items-center mb-2">
+                                    <RadioButton value="<10000000" color='#062DF6' />
                                     <Text className="ml-2">{"< Rp 10.000.000"}</Text>
                                  </View>
-
                                  <View className="flex-row items-center mb-2">
-                                    <RadioButton value="10000000-50000000" />
+                                    <RadioButton value="10000000-50000000" color='#062DF6' />
                                     <Text className="ml-2">{"Rp 10.000.000 - 50.000.000"}</Text>
                                  </View>
                                  <View className="flex-row items-center">
-                                    <RadioButton value=">50000000" />
+                                    <RadioButton value=">50000000" color='#062DF6' />
                                     <Text className="ml-2">{"> Rp 50.000.000"}</Text>
                                  </View>
                               </RadioButton.Group>
@@ -250,7 +347,7 @@ const BusinessList = () =>
                                     hideModalPrice();
                                  }}
                                  className="mt-4"
-                                 buttonColor='#2D70F3'
+                                 buttonColor='#F3B02D'
                               >
                                  Confirm
                               </Button>
@@ -326,7 +423,10 @@ const BusinessList = () =>
                               {selectedPlace && (
                                  <View className="p-3 bg-gray-100 rounded-md">
                                     <Text className="text-lg font-bold">
-                                       Selected Place: {selectedPlace.name}
+                                       Selected Place:
+                                    </Text>
+                                    <Text className="">
+                                       {selectedPlace.name}
                                     </Text>
                                     {/* {selectedPlace.details && (
                                        <Text className="text-sm text-gray-600">
@@ -334,16 +434,34 @@ const BusinessList = () =>
                                           {selectedPlace.details.lng}
                                        </Text>
                                     )} */}
+
                                  </View>
+                              )}
+
+                              {selectedPlace && (
+                                 <Button
+                                    style={{
+                                       marginBottom: 5,
+                                       borderColor: "#F3B02D"
+                                    }}
+                                    mode="outlined"
+                                    textColor='#F3B02D'
+                                    onPress={() =>
+                                    {
+                                       setSelectedPlace( null );
+                                    }}
+                                 >
+                                    Reset
+                                 </Button>
                               )}
 
                               {/* Button untuk Menutup Modal */}
                               <Button
                                  mode="contained"
                                  onPress={() => setModalVisibleLocation( false )}
-                                 buttonColor='#2D70F3'
+                                 buttonColor='#F3B02D'
                               >
-                                 Close
+                                 Confirm
                               </Button>
                            </Modal>
                         </Portal>
@@ -380,13 +498,22 @@ const BusinessList = () =>
                                  onValueChange={handleSelectionCategory}
                                  value={selectedCategory}
                               >
+                                 {/* reset */}
+                                 <View className="flex-row items-center ml-1 mb-2 justify-between">
+                                    <View className="flex-row items-center">
+                                       <MaterialIcons name="apps" size={24} color="#000" />
+                                       <Text className="ml-4 text-lg">All</Text>
+                                    </View>
+                                    <RadioButton value="" color='#062DF6' />
+                                 </View>
+
                                  {/* Category 1: Food & Beverages */}
                                  <View className="flex-row items-center ml-1 mb-2 justify-between">
                                     <View className="flex-row items-center">
                                        <MaterialIcons name="local-dining" size={24} color="#000" />
                                        <Text className="ml-4 text-lg">Food & Beverages</Text>
                                     </View>
-                                    <RadioButton value="Food%20%26%20Beverage" />
+                                    <RadioButton value="Food & Beverage" color='#062DF6' />
                                  </View>
 
                                  {/* Category 2: Health & Beauty */}
@@ -395,7 +522,7 @@ const BusinessList = () =>
                                        <MaterialIcons name="spa" size={24} color="#000" />
                                        <Text className="ml-4 text-lg">Health & Beauty</Text>
                                     </View>
-                                    <RadioButton value="Health%20%26%20Beauty" />
+                                    <RadioButton value="Health & Beauty" color='#062DF6' />
                                  </View>
 
                                  {/* Category 3: Barber & Salon */}
@@ -404,7 +531,7 @@ const BusinessList = () =>
                                        <MaterialIcons name="fitness-center" size={24} color="#000" />
                                        <Text className="ml-4 text-lg">Barber & Salon</Text>
                                     </View>
-                                    <RadioButton value="Barber%20%26%20Salon" />
+                                    <RadioButton value="Barber & Salon" color='#062DF6' />
                                  </View>
 
                                  {/* Category 4: Expedition */}
@@ -413,7 +540,7 @@ const BusinessList = () =>
                                        <MaterialIcons name="airport-shuttle" size={24} color="#000" />
                                        <Text className="ml-4 text-lg">Expedition</Text>
                                     </View>
-                                    <RadioButton value="Expedition" />
+                                    <RadioButton value="Expedition" color='#062DF6' />
                                  </View>
                               </RadioButton.Group>
 
@@ -426,7 +553,7 @@ const BusinessList = () =>
                                     console.log( selectedCategory ); // Log selected category value
                                  }}
                                  className="mt-4"
-                                 buttonColor='#2D70F3'
+                                 buttonColor='#F3B02D'
                               >
                                  Confirm
                               </Button>
@@ -447,10 +574,9 @@ const BusinessList = () =>
                               columnGap: 9
                            }}
                            showsVerticalScrollIndicator={false}
-                           onEndReached={() => loadMore( filters, jwtToken )}
+                           onEndReached={handleLoadMore}
                            onEndReachedThreshold={0.5}
-                           ListFooterComponent={loading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
-                           ListEmptyComponent={<Text>No franchise found</Text>}
+                           ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
                         />
                      </View>
                   </View>
@@ -461,19 +587,18 @@ const BusinessList = () =>
             className="absolute bottom-5 right-9 bg-yellow w-14 h-14 rounded-full items-center justify-center shadow-lg"
             onPress={async () =>
             {
-
+               console.log( 'category selected: ', selectedCategory );
                console.log( 'selectedPlace: ', selectedPlace );
                console.log( 'minPrice : ', minPrice );
                console.log( 'maxPrice : ', maxPrice );
                const filterss = {
-                  // location: selectedPlace, // Sesuaikan dengan tempat yang dipilih
-                  // priceMin: minPrice,
-                  // priceMax: maxPrice,
-                  // category: 'Food & Beverage', // Bisa disesuaikan dengan kategori yang diinginkan
+                  location: "jakarta",
+                  // location: 'semarang, su',
+
                };
 
-               const pages = 1; // Sesuaikan dengan halaman yang diinginkan
-               const limits = 10;
+               const pages = 1;
+               const limits = 6;
                const data = await fetchProductsApi( pages, limits, filterss, jwtToken );
                console.log( 'Fetched products:', data.data.products );
             }}

@@ -113,3 +113,68 @@ export const fetchCategoryAnalysisAPI = async ( period, startDate, endDate, jwtT
       throw error;
    }
 };
+
+export const getOrderIdByProductIdApi = async ( jwtToken, productId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_ORDER_URL }/franchise-id/${ productId }`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const data = response?.data?.data;
+
+      const orderId = data?.[ "order_id" ] || null;
+
+      return {
+         orderId
+      };
+   } catch ( error )
+   {
+      console.error( "Error get OrderID API:", error );
+      throw error;
+   }
+};
+
+
+export const fetchInformationApi = async ( jwtToken, id ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_ORDER_URL }/${ id }`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const data = response?.data?.data;
+
+      const status = data?.status || null;
+      const date = data?.date || null;
+      const priceTotal = data?.[ "price-total" ] || null;
+      const shipmentPrice = data?.[ "shipment-price" ] || null;
+      const insurancePrice = data?.[ "insurance-price" ] || null;
+      const adminPrice = data?.[ "admin-price" ] || null;
+
+      return {
+         status,
+         date,
+         priceTotal,
+         shipmentPrice,
+         insurancePrice,
+         adminPrice,
+      };
+   } catch ( error )
+   {
+      console.error( "Error fetching information API:", error );
+      throw error;
+   }
+};
