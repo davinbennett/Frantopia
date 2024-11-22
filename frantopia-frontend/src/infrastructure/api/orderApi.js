@@ -178,3 +178,55 @@ export const fetchInformationApi = async ( jwtToken, id ) =>
       throw error;
    }
 };
+
+export const fetchOrderListApi = async ( page, limit, filters = {}, jwtToken ) =>
+{
+   const { status } = filters;
+
+   const params = {
+      page,
+      limit,
+      ...( status !== null && status !== undefined && { status } ),
+   };
+
+   const config = {
+      params,
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_ORDER_URL }`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const data = response?.data?.data?.['order_data'];
+
+      const orderId = data?.[ 'order_id' ] || null;
+      const userId = data?.[ 'user_id' ] || null;
+      const userName = data?.[ "user_name" ] || null;
+      const franchiseName = data?.[ "franchise_name" ] || null;
+      const packageFranchiseName = data?.[ "package_franchise_name" ] || null;
+      const category = data?.category || null;
+      const status = data?.status || null;
+      const orderDate = data?.[ 'order_date' ] || null;
+      const totalPage = response?.data?.[ 'total_page' ] || null;
+
+      return {
+         orderId,
+         userId,
+         userName,
+         franchiseName,
+         packageFranchiseName,
+         category,
+         status,
+         orderDate,
+         totalPage
+      };
+   } catch ( error )
+   {
+      console.error( "Error fetchOrderListApi:", error );
+      throw error;
+   }
+};

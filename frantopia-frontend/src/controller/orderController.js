@@ -1,4 +1,4 @@
-import { fetchInformationApi, getOrderIdByProductIdApi } from "../infrastructure/api/orderApi";
+import { fetchInformationApi, fetchOrderListApi, getOrderIdByProductIdApi } from "../infrastructure/api/orderApi";
 import OrderImpl from "../repositories/implementations/orderImpl";
 import { Text } from "react-native";
 
@@ -99,4 +99,96 @@ export const fetchInformationController = async ( jwtToken, productId ) =>
    }
 
    return { status, date, priceTotal, shipmentPrice, insurancePrice, adminPrice };
+};
+
+export const fetchOrderListController = () =>
+{
+   const [ currentPage, setCurrentPage ] = useState( 1 );
+   const [ hasMore, setHasMore ] = useState( true );
+   const [ orders, setOrders ] = useState( [] );
+   const [ loading, setLoading ] = useState( false );
+   let limit = 6;
+
+   useEffect( () =>
+   {
+      setCurrentPage( 1 );
+      setHasMore( true );
+      setOrders( [] );
+   }, [] );
+
+   const getDataByFilter = async ( filters, jwtToken ) =>
+   {
+      setLoading( true );
+      try
+      {
+         const { orderId,
+            userId,
+            userName,
+            franchiseName,
+            packageFranchiseName,
+            category,
+            status,
+            orderDate,
+            totalPage } = await fetchOrderListApi( 1, limit, filters, jwtToken );
+
+         setOrders( newProducts );
+         if ( currentPage < totalPage )
+         {
+            setHasMore( true );
+            setCurrentPage( 2 );
+         } else
+         {
+            setHasMore( false );
+         }
+      } catch ( error )
+      {
+         console.error( "Error fetching products:", error );
+      } finally
+      {
+         setLoading( false );
+      }
+   };
+
+   const loadMore = async ( filters, jwtToken ) =>
+   {
+      if ( !hasMore || loading ) return;
+      setLoading( true );
+      try
+      {
+         const data = await fetchProductsApi( currentPage, limit, filters, jwtToken );
+         const { products: newProducts, total_pages } = data.data;
+
+         setOrders( ( prevProducts ) => [ ...prevProducts, ...newProducts ] );
+         if ( currentPage < total_pages )
+         {
+            setHasMore( true );
+            setCurrentPage( ( prevPage ) => prevPage + 1 );
+         } else
+         {
+            setHasMore( false );
+         }
+      } catch ( error )
+      {
+         console.error( "Error fetching products:", error );
+      } finally
+      {
+         setLoading( false );
+      }
+   };
+
+   const resetPagination = () =>
+   {
+      setCurrentPage( 1 );
+      setHasMore( true );
+      setOrders( [] );
+   };
+
+   return {
+      orders,
+      hasMore,
+      loading,
+      loadMore,
+      getDataByFilter,
+      resetPagination,
+   };
 };

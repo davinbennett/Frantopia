@@ -1,6 +1,7 @@
-import { fetchProductsApi } from "../infrastructure/api/productApi";
+import { fetchGalleryByIdAPI, fetchPackageByIdAPI, fetchProductDetailByIdAPI, fetchProductsApi, postBusinessDataApi, putBusinessDataApi } from "../infrastructure/api/productApi";
 import { ProductImpl } from "../repositories/implementations/productImpl";
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 const productImpl = new ProductImpl();
 
 export const getTotalProduct = async ( jwtToken ) =>
@@ -38,7 +39,7 @@ export const useProductListController = () =>
             setCurrentPage( 2 );
          } else
          {
-            setHasMore( false ); 
+            setHasMore( false );
          }
       } catch ( error )
       {
@@ -89,6 +90,139 @@ export const useProductListController = () =>
       loading,
       loadMore,
       getDataByFilter,
-      resetPagination, 
+      resetPagination,
    };
 };
+
+export const fetchProductDetailByIdController = async ( jwtToken, productId ) =>
+{
+   try
+   {
+      const {
+         category = null,
+         established = null,
+         description = null,
+         price = null,
+         licensed = null,
+         location = null,
+         outletSales = null,
+         rating = null,
+         royaltyFee = null,
+         stock = null,
+         profile = null,
+         deposit = null,
+         name = null,
+         status = null,
+         income = null
+      } = await fetchProductDetailByIdAPI( jwtToken, productId );
+
+      return {
+         category,
+         established,
+         description,
+         price,
+         licensed,
+         location,
+         outletSales,
+         rating,
+         royaltyFee,
+         stock,
+         profile,
+         deposit,
+         name,
+         status,
+         income
+      };
+   } catch ( error )
+   {
+      console.error( "Error in fetchProductDetailByIdController:", error );
+      return {
+         category: null,
+         established: null,
+         description: null,
+         price: null,
+         licensed: null,
+         location: null,
+         outletSales: null,
+         rating: null,
+         royaltyFee: null,
+         stock: null,
+         profile: null,
+         deposit: null,
+         name: null,
+         status: null,
+         income: null
+      };
+   }
+};
+
+export const fetchGalleryByIdController = async ( jwtToken, productId ) =>
+{
+   try
+   {
+      const { gallery = [] } = await fetchGalleryByIdAPI( jwtToken, productId );
+
+      return { gallery };
+   } catch ( error )
+   {
+      console.error( "Error in fetchGalleryByIdController:", error );
+      return { gallery: [] };
+   }
+};
+
+export const fetchPackageByIdController = async ( jwtToken, productId ) =>
+{
+   try
+   {
+      const packages = await fetchPackageByIdAPI( jwtToken, productId );
+
+      return { packages };
+   } catch ( error )
+   {
+      console.error( "Error in fetchPackageByIdController:", error );
+      return { packages: [] };
+   }
+};
+
+export const postBusinessDataController = async ( jwtToken, businessData ) =>
+{
+   try
+   {
+      const response = await postBusinessDataApi( jwtToken, businessData );
+
+      if ( response.status === 200 )
+      {
+         console.log( 'Business data successfully submitted' );
+         return response.data;
+      } else
+      {
+         throw new Error( 'Failed to submit business data' );
+      }
+   } catch ( error )
+   {
+      console.error( 'Error in submitBusinessData:', error );
+      throw error;
+   }
+};
+
+export const putBusinessDataController = async ( jwtToken, businessData, productId ) =>
+{
+   try
+   {
+      const response = await putBusinessDataApi( jwtToken, businessData, productId );
+
+      if ( response.status === 200 )
+      {
+         console.log( 'Business data successfully updated' );
+         return response.data;
+      } else
+      {
+         throw new Error( 'Failed to update business data' );
+      }
+   } catch ( error )
+   {
+      console.error( 'Error in update BusinessData:', error );
+      throw error;
+   }
+};
+

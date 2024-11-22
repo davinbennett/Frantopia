@@ -14,13 +14,13 @@ const AuthStackNavigator = () => (
       <Stack.Screen
          name="Login"
          component={LoginScreen}
-         options={{ headerShown: false }}
+         options={{ headerShown: false, navigationBarColor: '#2D70F3' }}
       />
       <Stack.Screen
          name="BottomTabNavigation"
          component={BottomTabNavigation}
          initialParams={{ isAdmin: false }}
-         options={{ headerShown: false }}
+         options={{ headerShown: false, navigationBarColor: '#2D70F3' }}
       />
    </Stack.Navigator>
 );

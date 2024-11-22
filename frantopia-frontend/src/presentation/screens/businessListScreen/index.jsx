@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -11,7 +11,8 @@ import { useSelector } from 'react-redux';
 import { useProductListController } from '../../../controller/productController';
 import { fetchProductsApi } from '../../../infrastructure/api/productApi';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const categoryIcons = {
    "Barber & Salon": { library: MaterialIcons, name: "content-cut" },
@@ -66,17 +67,21 @@ const BusinessList = () =>
    const renderItem = ( { item } ) =>
    {
 
-      const handlePressDetail = ( ) =>
+      const handlePressDetail = () =>
       {
-         navigation.navigate( 'ProductDetail', { 
-            id: item.id, 
-            name: item.name  
+         console.log( 'productId: ', item.id );
+         navigation.navigate( 'ProductDetail', {
+            id: item.id,
+            name: item.name
          } );
       };
 
       const handlePressEdit = () =>
       {
-
+         console.log( 'productId: ', item.id );
+         navigation.navigate( 'EditBusiness', {
+            id: item.id,
+         } );
       };
 
       return (
@@ -150,13 +155,20 @@ const BusinessList = () =>
             {/*  FOOTER */}
             <View className="flex-row mt-1 w-full">
                <View className="flex-row items-center bg-grayLight justify-between w-full px-3 py-1">
-                  <View className='flex-row gap-x-1'>
+                  <View className='flex-row gap-x-1 flex-1'>
                      <MaterialIcons name="star" size={13} color="#FFBF00" />
                      <Text className="text-xs">{item.rating}</Text>
                   </View>
-                  <View className='flex-row items-center gap-x-1'>
+                  <View className='flex-row items-center gap-x-1 flex-1 justify-end'>
                      <MaterialIcons name="location-on" size={13} color="#2d70f3" />
-                     <Text className="text-xs">{item.location}</Text>
+                     <Text
+                        className="text-xs "
+                        numberOfLines={1} // Membatasi hanya 1 baris
+                        ellipsizeMode="tail" // Memotong teks di akhir
+                     >
+                        {item.location}
+                     </Text>
+
                   </View>
 
                </View>
@@ -213,9 +225,16 @@ const BusinessList = () =>
       setSelectedCategory( value );
    };
 
+   useFocusEffect(
+      useCallback( () =>
+      {
+         resetPagination();
+         getDataByFilter( filters, jwtToken );
+      }, [] )
+   );
+
    useEffect( () =>
    {
-      console.log( "Updated filters top:", filters );
       resetPagination();
       getDataByFilter( filters, jwtToken );
 
@@ -274,14 +293,15 @@ const BusinessList = () =>
          </View>
 
          <FlatList
-         showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
             data={[]}
             renderItem={null}
             keyExtractor={() => null}
             ListHeaderComponent={
                () => (
-                  <View className='px-7'>
-                     <View className='flex-1 bg-white flex-row items-center rounded-xl'
+                  <View className='mx-7' >
+                     <View
+                        className='flex-1 bg-white flex-row items-center  rounded-xl'
                         style={{
                            shadowColor: 'black',
                            shadowOffset: { width: 0, height: 2 },
@@ -584,23 +604,24 @@ const BusinessList = () =>
             }
          />
          <TouchableOpacity
-            className="absolute bottom-5 right-9 bg-yellow w-14 h-14 rounded-full items-center justify-center shadow-lg"
+            className="absolute bottom-3 right-9 bg-yellow w-14 h-14 rounded-full items-center justify-center shadow-lg"
             onPress={async () =>
             {
-               console.log( 'category selected: ', selectedCategory );
-               console.log( 'selectedPlace: ', selectedPlace );
-               console.log( 'minPrice : ', minPrice );
-               console.log( 'maxPrice : ', maxPrice );
-               const filterss = {
-                  location: "jakarta",
-                  // location: 'semarang, su',
+               // console.log( 'category selected: ', selectedCategory );
+               // console.log( 'selectedPlace: ', selectedPlace );
+               // console.log( 'minPrice : ', minPrice );
+               // console.log( 'maxPrice : ', maxPrice );
+               // const filterss = {
+               //    location: "jakarta",
+               //    // location: 'semarang, su',
 
-               };
+               // };
 
-               const pages = 1;
-               const limits = 6;
-               const data = await fetchProductsApi( pages, limits, filterss, jwtToken );
-               console.log( 'Fetched products:', data.data.products );
+               // const pages = 1;
+               // const limits = 6;
+               // const data = await fetchProductsApi( pages, limits, filterss, jwtToken );
+               // console.log( 'Fetched products:', data.data.products );
+               navigation.navigate( 'AddBusiness' );
             }}
          >
             <Icon name="plus" size={24} color="#FFF" />
