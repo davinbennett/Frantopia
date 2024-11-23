@@ -3,8 +3,10 @@ package controllers
 import (
 	models "Backend/models/products"
 	"Backend/services"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -233,6 +235,68 @@ func (c *ProductController) GetPackages() gin.HandlerFunc {
 		ctx.JSON(http.StatusOK, gin.H{
 			"code": http.StatusOK,
 			"data": packages,
+		})
+	}
+}
+
+func (c *ProductController) GetProfileByID() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		productID := ctx.Param("id")
+
+		profile, err := c.productService.GetProfileByID(productID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"code":  http.StatusInternalServerError,
+				"error": "Failed to fetch packages",
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code": http.StatusOK,
+			"data": profile,
+		})
+	}
+}
+
+func (c *ProductController) UpdateStatusByProductId() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		productID := ctx.Param("id")
+		if productID == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Product ID is required"})
+			return
+		}
+
+		var requestBody struct {
+			Status string `json:"status"`
+		}
+
+
+		if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
+		fmt.Println("s: ", requestBody.Status)
+
+		if strings.ToLower(requestBody.Status) != "accept" && strings.ToLower(requestBody.Status) != "decline" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid status value. Use 'accept' or 'decline'."})
+			return
+		}
+
+		newStatus := "sold"
+		if strings.ToLower(requestBody.Status) == "decline" {
+			newStatus = "available"
+		}
+
+		err := c.productService.UpdateStatusByProductId(productID, newStatus)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product status"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"code":    200,
+			"message": "Product status updated successfully",
 		})
 	}
 }

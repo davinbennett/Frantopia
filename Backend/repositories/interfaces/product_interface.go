@@ -17,4 +17,6 @@ type ProductRepository interface {
 	UpdateProduct(productID string, updatedProduct models.Franchise) error
 	GetProductCategoryByID(productID string) (string, error)
 	GetPackages(productID string) ([]models.PackageFranchises, error)
+	GetProfileByID(productID string) (string, error)
+	UpdateStatusByProductId(productID string, status string) error
 }

@@ -141,12 +141,16 @@ func (s *orderServiceImpl) GetOrdersByStatus(status string, page, limit int) (ma
 		response = append(response, map[string]interface{}{
 			"order_id":               order.ID,
 			"user_id":                order.UserID,
+			"product_id":             product.ID,
+			"package_franchise_id":   order.PackageFranchiseId,
 			"user_name":              user.Name, // Ambil user_name dari tabel Users
 			"franchise_name":         product.Name,
 			"package_franchise_name": packageFranchise["name"],
 			"category":               product.Category,
 			"status":                 order.Status,
 			"order_date":             order.OrderDate.Format("2006-01-02"),
+			"profile":                product.Profile,
+			"total_amount":           order.TotalAmount,
 		})
 	}
 

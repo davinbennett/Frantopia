@@ -6,10 +6,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"regexp"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -93,7 +94,7 @@ func getFirstWord(location string) string {
 
 	location = regexp.MustCompile(`[^\w\s]`).ReplaceAllString(location, "")
 
-	parts := strings.Fields(location) 
+	parts := strings.Fields(location)
 	firstWord := strings.TrimSpace(parts[0])
 
 	return firstWord
@@ -350,4 +351,48 @@ func (r *productImpl) GetPackages(productID string) ([]models.PackageFranchises,
 	}
 
 	return result.PackageFranchises, nil
+}
+
+func (r *productImpl) GetProfileByID(franchiseID string) (string, error) {
+	var franchise models.Franchise
+
+	objectId, err := primitive.ObjectIDFromHex(franchiseID)
+	if err != nil {
+		return "", fmt.Errorf("invalid franchise ID format: %v", err)
+	}
+
+	filter := bson.D{{Key: "_id", Value: objectId}}
+
+	err = r.mongoDB.Collection("franchises").FindOne(context.TODO(), filter).Decode(&franchise)
+
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", fmt.Errorf("franchise not found for FranchiseID: %s", franchiseID)
+		}
+		return "", err
+	}
+
+	return franchise.Profile, nil
+}
+
+func (r *productImpl) UpdateStatusByProductId(productID string, status string) error {
+	objectId, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objectId}
+
+	update := bson.M{
+		"$set": bson.M{
+			"status":     status,
+			"updated_at": time.Now().Add(7 * time.Hour),
+		},
+	}
+
+	_, err = r.mongoDB.Collection("franchises").UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -17,9 +17,11 @@ func ProductRoutes(router *gin.RouterGroup, productController *controllers.Produ
 		apiRoutes.GET("/:id/package/:packageId", productController.GetPackageByID())
 		apiRoutes.GET("/:id/category", productController.GetProductCategory)
 		apiRoutes.GET("/:id/package", productController.GetPackages())
+		apiRoutes.GET("/:id/profile", productController.GetProfileByID())
 
 		apiRoutes.POST("/", productController.CreateProduct())
 
 		apiRoutes.PUT("/:id", productController.UpdateProduct())
+		apiRoutes.PUT("/:id/status", productController.UpdateStatusByProductId())
 	}
 }

@@ -21,6 +21,8 @@ type ProductService interface {
 	UpdateProduct(productID string, updatedProduct models.Franchise) error
 	GetProductCategoryByID(productID string) (string, error)
 	GetPackages(productID string) ([]models.PackageFranchises, error)
+	GetProfileByID(productID string) (string, error)
+	UpdateStatusByProductId(productID string, status string) error
 }
 
 type productServiceImpl struct {
@@ -120,6 +122,8 @@ func (s *productServiceImpl) GetProductByID(productID string) (map[string]interf
 		"outlet_sales": product.OutletSales,
 		"stock":        product.Stock,
 		"profile":      product.Profile,
+		"status":       product.Status,
+		"income":       product.Income,
 	}
 
 	return response, nil
@@ -209,4 +213,12 @@ func (s *productServiceImpl) GetProductCategoryByID(productID string) (string, e
 
 func (s *productServiceImpl) GetPackages(productID string) ([]models.PackageFranchises, error) {
 	return s.productRepo.GetPackages(productID)
+}
+
+func (s *productServiceImpl) GetProfileByID(productID string) (string, error) {
+	return s.productRepo.GetProfileByID(productID)
+}
+
+func (s *productServiceImpl) UpdateStatusByProductId(productID string, status string) error {
+	return s.productRepo.UpdateStatusByProductId(productID, status)
 }
