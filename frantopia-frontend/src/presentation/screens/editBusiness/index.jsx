@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, Pressable, Alert, StyleSheet, ScrollView, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Text, FlatList, TouchableOpacity, Image, StatusBar, Dimensions, Keyboard, ActivityIndicator, Pressable, Alert, ScrollView, TextInput } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Modal, Portal, Button, RadioButton } from 'react-native-paper';
+import { Modal, Portal, Button } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController, postBusinessDataController, putBusinessDataController, useProductListController } from '../../../controller/productController';
-import { fetchProductsApi } from '../../../infrastructure/api/productApi';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController, putBusinessDataController } from '../../../controller/productController';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import { Input } from 'react-native-elements';
@@ -517,10 +512,10 @@ const EditBussiness = ( { navigation, route } ) =>
          }
       }
 
-      console.log('gallery: ', gallery);
-      console.log('gallery old: ', galleryOld);
-      
-      
+      console.log( 'gallery: ', gallery );
+      console.log( 'gallery old: ', galleryOld );
+
+
 
       // **Gallery Logic**
       const updatedGallery = [];
@@ -568,9 +563,9 @@ const EditBussiness = ( { navigation, route } ) =>
             updatedGallery.push( newItem.uri );
          }
       }
-      console.log('Updated gallery: ' + updatedGallery);
-      
-      
+      console.log( 'Updated gallery: ' + updatedGallery );
+
+
 
       return {
          profileUrl,

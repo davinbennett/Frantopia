@@ -9,11 +9,8 @@ import { Modal, Portal, Button, RadioButton } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { useProductListController } from '../../../controller/productController';
-import { fetchProductsApi } from '../../../infrastructure/api/productApi';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Dropdown } from 'react-native-element-dropdown';
-
 const categoryIcons = {
    "Barber & Salon": { library: MaterialIcons, name: "content-cut" },
    "Food & Beverage": { library: MaterialIcons, name: "local-dining" },

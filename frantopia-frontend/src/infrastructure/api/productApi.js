@@ -157,8 +157,6 @@ export const fetchPackageByIdAPI = async ( jwtToken, productId ) =>
          price: item.price,
       } ) );
 
-      console.log( formattedPackages );
-
       return formattedPackages;
    } catch ( error )
    {
@@ -205,6 +203,69 @@ export const putBusinessDataApi = async ( jwtToken, businessData, productId ) =>
    } catch ( error )
    {
       console.error( 'Error update business data:', error );
+      throw error;
+   }
+};
+
+export const getPackageByIdAPI = async ( jwtToken, productId, packageId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_PRODUCT_URL }/${ productId }/package/${ packageId }`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const data = response?.data?.data[ 'package_franchises' ];
+
+      console.log( data );
+
+
+      const grossProfit = data?.[ 'gross_profit' ] || null;
+      const income = data?.income || null;
+      const name = data?.name || null;
+      const packageId = data?.[ 'package_id' ] || null;
+      const price = data?.price || null;
+      const sizeConcept = data?.[ 'size_concept' ] || null;
+
+      return {
+         grossProfit,
+         income,
+         name,
+         price,
+         sizeConcept
+      };
+
+   } catch ( error )
+   {
+      console.error( "Error fetching GalleryById API:", error );
+      throw error;
+   }
+};
+
+export const putProductStatusApi = async ( jwtToken, status, productId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_PRODUCT_URL }/${ productId }/status`;
+
+   try
+   {
+
+      const response = await axios.put( url, { status: status }, config );
+
+      return response;
+   } catch ( error )
+   {
+      console.error( 'Error putProductStatusApi:', error );
       throw error;
    }
 };

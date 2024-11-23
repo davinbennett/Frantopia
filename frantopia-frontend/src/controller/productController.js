@@ -1,4 +1,4 @@
-import { fetchGalleryByIdAPI, fetchPackageByIdAPI, fetchProductDetailByIdAPI, fetchProductsApi, postBusinessDataApi, putBusinessDataApi } from "../infrastructure/api/productApi";
+import { fetchGalleryByIdAPI, fetchPackageByIdAPI, fetchProductDetailByIdAPI, fetchProductsApi, getPackageByIdAPI, getProfileByIdAPI, postBusinessDataApi, putBusinessDataApi, putProductStatusApi } from "../infrastructure/api/productApi";
 import { ProductImpl } from "../repositories/implementations/productImpl";
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
@@ -226,3 +226,55 @@ export const putBusinessDataController = async ( jwtToken, businessData, product
    }
 };
 
+export const getPackageByIdController = async ( jwtToken, productId, packageId ) =>
+{
+   try
+   {
+      const {
+         grossProfit = null,
+         income = null,
+         name = null,
+         price = null,
+         sizeConcept = null,
+      } = await getPackageByIdAPI( jwtToken, productId, packageId );
+
+      return {
+         grossProfit,
+         income,
+         name,
+         price,
+         sizeConcept
+      };
+   } catch ( error )
+   {
+      console.error( "Error in getPackageByIdController:", error );
+      return {
+         grossProfit: null,
+         income: null,
+         name: null,
+         price: null,
+         sizeConcept: null,
+      };
+   }
+};
+
+export const putProductStatusController = async ( jwtToken, status, productId ) =>
+{
+   try
+   {
+      const response = await putProductStatusApi( jwtToken, status, productId );
+      
+      if ( response.data.code === 200 )
+      {
+         console.log( 'PRODUCT STATUS successfully updated' );
+         return response.data;
+      } else
+      {
+         throw new Error( 'Failed to update PRODUCT STATUS' );
+      }
+   } catch ( error )
+   {
+      console.error( 'Error in update PRODUCT STATUS:', error );
+      throw error;
+   }
+};

@@ -22,6 +22,7 @@ import EditBussiness from '../screens/editBusiness';
 import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-navigation/native';
 import Pending from '../screens/orderListScreen/pending';
 import Confirm from '../screens/orderListScreen/confirm';
+import DetailOrder from '../screens/detailOrder';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -159,16 +160,9 @@ const OrderAdminTopTabs = ( { route, navigation } ) =>
                   source={require( '../../assets/icons/storeMiringKecil2.png' )}
                   className='absolute -top-10 -right-10'
                />
-               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <TouchableOpacity
-                     onPress={() => navigation.goBack()}
-                  >
-                     <MaterialIcons name="keyboard-arrow-left" size={32} color="white" />
-                  </TouchableOpacity>
-                  <Text className='text-3xl text-white font-semibold ml-2'>
-                     Order List
-                  </Text>
-               </View>
+               <Text className='text-3xl text-white font-semibold ml-2'>
+                  Order List
+               </Text>
             </View>
          ),
       } );
@@ -196,10 +190,10 @@ const OrderAdminTopTabs = ( { route, navigation } ) =>
          }}
       >
          <TopTab.Screen name="Pending">
-            {( props ) => <Pending {...props}/>}
+            {( props ) => <Pending {...props} />}
          </TopTab.Screen>
          <TopTab.Screen name="Confirm">
-            {( props ) => <Confirm {...props}/>}
+            {( props ) => <Confirm {...props} />}
          </TopTab.Screen>
       </TopTab.Navigator>
    );
@@ -214,6 +208,14 @@ const OrderAdminStack = () => (
          component={OrderAdminTopTabs}
          options={{
             headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="DetailOrder"
+         component={DetailOrder}
+         options={{
+            headerShown: false,
+            navigationBarColor: '#F3F4FE',
          }}
       />
    </Stack.Navigator>
@@ -288,7 +290,7 @@ const BottomTabNavigation = () =>
                      tabBarStyle: ( ( route ) =>
                      {
                         const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
-                        if ( routeName === '' )
+                        if ( routeName === 'DetailOrder' )
                         {
                            return { display: "none" };
                         }

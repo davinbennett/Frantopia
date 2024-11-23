@@ -1,6 +1,7 @@
-import { fetchInformationApi, fetchOrderListApi, getOrderIdByProductIdApi } from "../infrastructure/api/orderApi";
+import { fetchInformationApi, fetchOrderListApi, getOrderIdByProductIdApi, putOrderStatusApi } from "../infrastructure/api/orderApi";
 import OrderImpl from "../repositories/implementations/orderImpl";
 import { Text } from "react-native";
+import React, { useState, useEffect } from 'react';
 
 const orderImpl = new OrderImpl();
 
@@ -77,6 +78,7 @@ export const fetchCategoryAnalysisController = async ( period, startDate, endDat
 
 export const fetchInformationController = async ( jwtToken, productId ) =>
 {
+   //  cek apakah franchise id x ada di orders
    const { orderId } = await getOrderIdByProductIdApi( jwtToken, productId );
 
    if ( !orderId )
@@ -93,7 +95,7 @@ export const fetchInformationController = async ( jwtToken, productId ) =>
 
    const { status, date, priceTotal, shipmentPrice, insurancePrice, adminPrice } = await fetchInformationApi( jwtToken, orderId );
 
-   if ( !status || !date || !priceTotal || !shipmentPrice || !insurancePrice || !adminPrice )
+   if ( status === 'Failed' )
    {
       return { status: null, date: null, priceTotal: null, shipmentPrice: null, insurancePrice: null, adminPrice: null };
    }
@@ -119,20 +121,14 @@ export const fetchOrderListController = () =>
    const getDataByFilter = async ( filters, jwtToken ) =>
    {
       setLoading( true );
+      setCurrentPage( 1 );
       try
       {
-         const { orderId,
-            userId,
-            userName,
-            franchiseName,
-            packageFranchiseName,
-            category,
-            status,
-            orderDate,
-            totalPage } = await fetchOrderListApi( 1, limit, filters, jwtToken );
+         const { data } = await fetchOrderListApi( 1, limit, filters, jwtToken );
+         const { order_data: newOrders, total_pages } = data;
 
-         setOrders( newProducts );
-         if ( currentPage < totalPage )
+         setOrders( newOrders );
+         if ( 1 < total_pages )
          {
             setHasMore( true );
             setCurrentPage( 2 );
@@ -149,16 +145,17 @@ export const fetchOrderListController = () =>
       }
    };
 
+
    const loadMore = async ( filters, jwtToken ) =>
    {
       if ( !hasMore || loading ) return;
       setLoading( true );
       try
       {
-         const data = await fetchProductsApi( currentPage, limit, filters, jwtToken );
-         const { products: newProducts, total_pages } = data.data;
+         const { data } = await fetchOrderListApi( currentPage, limit, filters, jwtToken );
+         const { order_data: newOrders, total_pages } = data;
 
-         setOrders( ( prevProducts ) => [ ...prevProducts, ...newProducts ] );
+         setOrders( ( prevOrders ) => [ ...prevOrders, ...newOrders ] );
          if ( currentPage < total_pages )
          {
             setHasMore( true );
@@ -176,6 +173,7 @@ export const fetchOrderListController = () =>
       }
    };
 
+
    const resetPagination = () =>
    {
       setCurrentPage( 1 );
@@ -191,4 +189,25 @@ export const fetchOrderListController = () =>
       getDataByFilter,
       resetPagination,
    };
+};
+
+export const putOrderStatusController = async ( jwtToken, status, orderId ) =>
+{
+   try
+   {
+      const response = await putOrderStatusApi( jwtToken, status, orderId );
+
+      if ( response.data.code === 200 )
+      {
+         console.log( 'ORDER STATUS successfully updated' );
+         return response.data;
+      } else
+      {
+         throw new Error( 'Failed to update ORDER STATUS' );
+      }
+   } catch ( error )
+   {
+      console.error( 'Error in update ORDER STATUS:', error );
+      throw error;
+   }
 };
