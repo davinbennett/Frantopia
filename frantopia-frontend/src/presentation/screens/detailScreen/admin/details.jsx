@@ -112,7 +112,7 @@ const DetailsAdmin = ( { id, name } ) =>
          setStock( stock );
          setProfile( profile );
          setDeposit( deposit );
-         console.log('status: ', status);
+         console.log( 'status: ', status );
       } catch ( error )
       {
          console.error( "Error fetching product detail:", error );
@@ -135,8 +135,8 @@ const DetailsAdmin = ( { id, name } ) =>
          } ) );
 
          setGallery( formattedGallery );
-         console.log(fetchedGallery);
-         
+         console.log( fetchedGallery );
+
       } catch ( error )
       {
          console.error( "Failed to fetch gallery:", error );
@@ -209,11 +209,12 @@ const DetailsAdmin = ( { id, name } ) =>
 
                      <Text>est. {established || "N/A"}</Text>
 
-                     <Divider />
+                     <Divider bold />
 
                      <Text className="font-bold text-xl text-blueDark">Detail</Text>
                      <Text>{description || "No description available."}</Text>
-                     <Divider />
+                     <Divider bold />
+                     
                      <Text className="font-bold text-xl text-blueDark">Products Gallery</Text>
                      <FlatList
                         data={gallery}

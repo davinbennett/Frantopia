@@ -23,6 +23,12 @@ import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-naviga
 import Pending from '../screens/orderListScreen/pending';
 import Confirm from '../screens/orderListScreen/confirm';
 import DetailOrder from '../screens/detailOrder';
+import DetailsCustomer from '../screens/detailScreen/customer/details';
+import Checkout from '../screens/checkout';
+import Loading from '../screens/loading';
+import Cart from '../screens/cart';
+import Address from '../screens/address';
+import PinPoint from '../screens/pinpoint';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -221,6 +227,64 @@ const OrderAdminStack = () => (
    </Stack.Navigator>
 );
 
+const HomeCustomerStack = () => (
+   <Stack.Navigator
+      screenOptions={{ animation: 'none' }}
+   >
+      <Stack.Screen
+         name="HomeCustomer"
+         component={CustomerHome}
+         options={{
+            headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="ProductDetailCustomer"
+         component={DetailsCustomer}
+         options={{
+            headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="Checkout"
+         component={Checkout}
+         options={{
+            headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="Loading"
+         component={Loading}
+         options={{
+            headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="Cart"
+         component={Cart}
+         options={{
+            headerShown: false,
+            navigationBarColor: '#F3F4FE',
+         }}
+      />
+      <Stack.Screen
+         name="Address"
+         component={Address}
+         options={{
+            headerShown: false,
+            navigationBarColor: '#F3F4FE',
+         }}
+      />
+      <Stack.Screen
+         name="PinPoint"
+         component={PinPoint}
+         options={{
+            headerShown: false,
+         }}
+      />
+   </Stack.Navigator>
+);
+
 const BottomTabNavigation = () =>
 {
    const { isAdmin } = useSelector( ( state ) => state.auth );
@@ -309,12 +373,26 @@ const BottomTabNavigation = () =>
             <>
                <Tab.Screen
                   name="Home"
-                  options={{ headerShown: false }}
-                  component={CustomerHome} />
+                     options={( { route } ) => ( {
+                        headerShown: false,
+                        tabBarStyle: ( ( route ) =>
+                        {
+                           const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
+                           if ( routeName === 'ProductDetailCustomer' || routeName === 'Checkout' || routeName === 'Loading' || routeName === 'Cart' || routeName === 'Address' ||
+                           routeName === 'PinPoint')
+                           {
+                              return { display: "none" };
+                           }
+                           return { backgroundColor: '#2D70F3' };
+                        } )( route ),
+                     } )}
+                     component={HomeCustomerStack}
+               />
                <Tab.Screen
                   name="Your Business"
                   options={{ headerShown: false }}
-                  component={YourBusiness} />
+                  component={YourBusiness}
+               />
                <Tab.Screen
                   name="Your Order"
                   options={{ headerShown: false }}

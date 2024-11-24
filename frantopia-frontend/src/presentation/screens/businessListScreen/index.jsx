@@ -52,13 +52,6 @@ const BusinessList = () =>
       location: null,
    } );
 
-   // const handlePressDetail = (id) =>
-   // {
-   //    const navigation = useNavigation();
-   //    navigation.navigate( 'ProductDetail', { id, initialTab: 'Information' } );
-   //    console.log('press i')
-   // };
-
    const navigation = useNavigation();
 
    const renderItem = ( { item } ) =>

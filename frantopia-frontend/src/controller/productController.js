@@ -15,7 +15,7 @@ export const useProductListController = () =>
    const [ hasMore, setHasMore ] = useState( true );
    const [ products, setProducts ] = useState( [] );
    const [ loading, setLoading ] = useState( false );
-   let limit = 6;
+   let limit = 7;
 
    useEffect( () =>
    {
@@ -263,7 +263,7 @@ export const putProductStatusController = async ( jwtToken, status, productId ) 
    try
    {
       const response = await putProductStatusApi( jwtToken, status, productId );
-      
+
       if ( response.data.code === 200 )
       {
          console.log( 'PRODUCT STATUS successfully updated' );
@@ -278,3 +278,4 @@ export const putProductStatusController = async ( jwtToken, status, productId ) 
       throw error;
    }
 };
+
