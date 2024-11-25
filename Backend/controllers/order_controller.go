@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Backend/models"
 	"Backend/services"
 	"fmt"
 	"net/http"
@@ -195,5 +196,27 @@ func (c *OrderController) GetIdOrderByFranchiseId(ctx *gin.Context) {
 		"data": gin.H{
 			"order_id": *orderID,
 		},
+	})
+}
+
+func (ctrl *OrderController) CreateOrder(ctx *gin.Context) {
+	var order models.Orders
+
+	if err := ctx.ShouldBindJSON(&order); err != nil {
+		fmt.Println("err: " + err.Error())
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	fmt.Println("order:", order)
+
+	err := ctrl.orderService.CreateOrder(order)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create Order"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"code": 200,
 	})
 }

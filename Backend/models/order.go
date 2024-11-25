@@ -9,11 +9,11 @@ type Orders struct {
 	UserID                uint       `gorm:"column:user_id;type:varchar(255)" json:"user_id"`
 	BankID                uint       `gorm:"column:bank_id" json:"bank_id"`
 	FranchiseId           string     `gorm:"column:franchise_id" json:"franchise_id"`
-	PackageFranchiseId    string     `gorm:"column:package_franchise_id" json:"package_franchise"`
+	PackageFranchiseId    string     `gorm:"column:package_franchise_id" json:"package_franchise_id"`
 	Status                string     `gorm:"column:status" json:"status"`
 	PaymentType           string     `gorm:"column:payment_type" json:"payment_type"`
 	TotalAmount           float64    `gorm:"column:total_amount" json:"total_amount"`
-	ShippingID            uint      `gorm:"column:shipping_id" json:"shipping_id"`
+	ShippingID            uint       `gorm:"column:shipping_id" json:"shipping_id"`
 	OrderDate             *time.Time `gorm:"column:order_date" json:"order_date"`
 	ShipmentPriceTotal    float64    `gorm:"column:shipment_price_total" json:"shipment_price_total"`
 	InsurancePriceTotal   float64    `gorm:"column:insurance_price_total" json:"insurance_price_total"`

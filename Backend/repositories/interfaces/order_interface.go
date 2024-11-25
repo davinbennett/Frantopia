@@ -10,4 +10,5 @@ type OrderRepository interface {
 	FindByStatus(status string, page, limit int) ([]models.Orders, int, error)
 	UpdateOrderStatus(orderID int, status string) error
 	FindOrderIdByFranchiseId(franchiseId string) (*uint, error)
+	CreateOrder(order models.Orders) error
 }

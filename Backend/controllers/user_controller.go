@@ -62,7 +62,10 @@ func (uc *UserController) UpdateAddress(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Address updated successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Address updated successfully",
+		"code": http.StatusOK,
+	})
 }
 
 func (uc *UserController) GetUserProfile(c *gin.Context) {

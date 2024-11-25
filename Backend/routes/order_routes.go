@@ -17,5 +17,7 @@ func OrderRoutes(router *gin.RouterGroup, orderController *controllers.OrderCont
 		apiRoutes.GET("/franchise-id/:franchiseId", orderController.GetIdOrderByFranchiseId)
 		
 		apiRoutes.PUT("/:id/status", orderController.UpdateOrderStatus)
+
+		apiRoutes.POST("/", orderController.CreateOrder)
 	}
 }

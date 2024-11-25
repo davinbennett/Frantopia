@@ -278,3 +278,10 @@ func (r *orderImpl) FindOrderIdByFranchiseId(franchiseId string) (*uint, error) 
 
 	return &order.ID, nil
 }
+
+func (r *orderImpl) CreateOrder(order models.Orders) error {
+	if err := r.postgresDB.Create(&order).Error; err != nil {
+		return err
+	}
+	return nil
+}

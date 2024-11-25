@@ -2,6 +2,7 @@
 package services
 
 import (
+	"Backend/models"
 	"Backend/repositories/interfaces"
 	"fmt"
 	"math"
@@ -15,6 +16,7 @@ type OrderService interface {
 	GetOrdersByStatus(status string, page, limit int) (map[string]interface{}, error)
 	UpdateOrderStatus(orderID int, status string) error
 	GetOrderIdByFranchiseId(franchiseId string) (*uint, error)
+	CreateOrder(model models.Orders) error
 }
 
 type orderServiceImpl struct {
@@ -172,4 +174,8 @@ func (s *orderServiceImpl) UpdateOrderStatus(orderID int, status string) error {
 
 func (s *orderServiceImpl) GetOrderIdByFranchiseId(franchiseId string) (*uint, error) {
 	return s.orderRepo.FindOrderIdByFranchiseId(franchiseId)
+}
+
+func (s *orderServiceImpl) CreateOrder(order models.Orders) error {
+	return s.orderRepo.CreateOrder(order)
 }
