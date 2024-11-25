@@ -374,8 +374,6 @@ const AddBussiness = ( { navigation } ) =>
                } ) ),
             };
 
-            console.log( "\nBusiness Data:", businessData );
-
             const response = await postBusinessDataController( jwtToken, businessData );
             Alert.alert(
                'Success',

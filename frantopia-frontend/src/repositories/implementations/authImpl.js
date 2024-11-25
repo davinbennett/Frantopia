@@ -13,14 +13,14 @@ class AuthImpl extends AuthInterface
       const { idToken, accessToken, userInfo } = await signInWithGoogleOauth2();
       const email = userInfo.data.user.email;
 
-      // Get JWT token from backend API
-      const jwtToken = await loginToBackendApi( idToken, accessToken, email );
+      // Get JWT token & userid from backend API
+      const {jwtToken, userId} = await loginToBackendApi( idToken, accessToken );
 
       // Save token and admin status in storage
       const isAdmin = email === 'davinbennet99@gmail.com';
-      await saveTokenAdminStorage( jwtToken, isAdmin );
+      await saveTokenAdminStorage( jwtToken, isAdmin, userId );
 
-      return { jwtToken, isAdmin };
+      return { jwtToken, isAdmin, userId };
    }
 
    async logoutUser ()
@@ -32,8 +32,8 @@ class AuthImpl extends AuthInterface
 
    async checkToken ()
    {
-      const { jwtToken, isAdmin } = await getTokenAdminStorage();
-      return { jwtToken, isAdmin };
+      const { jwtToken, isAdmin, userId } = await getTokenAdminStorage();
+      return { jwtToken, isAdmin, userId };
    }
 }
 

@@ -222,9 +222,6 @@ export const getPackageByIdAPI = async ( jwtToken, productId, packageId ) =>
       const response = await axios.get( url, config );
       const data = response?.data?.data[ 'package_franchises' ];
 
-      console.log( data );
-
-
       const grossProfit = data?.[ 'gross_profit' ] || null;
       const income = data?.income || null;
       const name = data?.name || null;

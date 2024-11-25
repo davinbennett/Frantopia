@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Text, FlatList, Alert, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -12,10 +12,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
+import { putAddressController } from '../../../controller/userController';
 
 const Address = ( { route, navigation } ) =>
 {
-   const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
+   const { jwtToken, isAdmin, userId } = useSelector( ( state ) => state.auth );
+   const { latitudePinPoint, longitudePinPoint, addressPinPoint } = useSelector( state => state.user );
+
    const screenHeight = Dimensions.get( 'screen' ).height;
    const screenWidth = Dimensions.get( 'screen' ).width;
    const windowHeight = Dimensions.get( 'window' ).height;
@@ -23,9 +26,80 @@ const Address = ( { route, navigation } ) =>
    const [ isLoading, setIsLoading ] = useState( true );
    const bottomHeight = useSafeAreaInsets().bottom;
 
-   const [ detailaAddress, setDetailAddress ] = useState( '' );
+   const [ detailAddress, setDetailAddress ] = useState( '' );
    const [ postalCode, setPostalCode ] = useState( '' );
-   const { address, longitude, latitude } = route.params || {};
+   const [ latitude, setLatitude ] = useState( 0.0 );
+   const [ longitude, setLongitude ] = useState( 0.0 );
+
+   // const { addressPinPoint, latitudePinPoint, longitudePinPoint } = route.params || {};
+
+   const { detailAddressCheckout, latitudeCheckout, longitudeCheckout, postalCodeCheckout } = route.params;
+
+   const [ uploading, setUploading ] = useState( false );
+
+   useEffect( () =>
+   {
+      setLongitude( longitudeCheckout );
+      setLatitude( latitudeCheckout );
+      setPostalCode( postalCodeCheckout );
+      setDetailAddress( detailAddressCheckout );
+   }, [] );
+
+   useEffect( () =>
+   {
+
+      if ( latitudePinPoint && longitudePinPoint )
+      {
+         setLatitude( latitudePinPoint );
+         setLongitude( longitudePinPoint );
+      }
+
+   }, [ latitudePinPoint, longitudePinPoint ] );
+
+
+   const handleSave = async () =>
+   {
+      if ( !detailAddress || !postalCode || !latitude || !longitude )
+      {
+         Alert.alert( 'Alert', 'All fields must be filled out.' );
+         return;
+      }
+
+      setUploading( true );
+
+      try
+      {
+         const addressData = {
+            latitude: parseFloat( latitude ),
+            longitude: parseFloat( longitude ),
+            postal_code: postalCode,
+            address: detailAddress
+         };
+
+         const response = await putAddressController( jwtToken, addressData, userId );
+         Alert.alert(
+            'Success',
+            'Address updated successfully!',
+            [
+               {
+                  text: 'OK',
+                  onPress: () =>
+                  {
+                     navigation.goBack();
+                  },
+               },
+            ]
+         );
+
+      } catch ( error )
+      {
+         console.error( 'Error uploading files:', error );
+         Alert.alert( 'Error', 'Something went wrong while saving the address.' );
+      } finally
+      {
+         setUploading( false );
+      }
+   };
 
    return (
       <View className='flex-1 bg-background '>
@@ -47,6 +121,7 @@ const Address = ( { route, navigation } ) =>
                </Text>
             </View>
          </View>
+
          <View className='justify-between flex-1'>
             <View>
                <View className='px-7 mb-6'>
@@ -58,7 +133,14 @@ const Address = ( { route, navigation } ) =>
                         </Text>
                      </View>
                      <TouchableOpacity
-                        onPress={() => navigation.navigate( 'PinPoint' )}
+                        onPress={() => navigation.navigate( 'PinPoint', {
+                           onSelectLocation: ( data ) =>
+                           {
+                              setLatitude( data.latitudePinPoint );
+                              setLongitude( data.longitudePinPoint );
+                              setDetailAddress( data.addressPinPoint );
+                           },
+                        } )}
                      >
                         <Text
                            className='text-blue'
@@ -69,19 +151,23 @@ const Address = ( { route, navigation } ) =>
                   </View>
 
                   <View className="border-b border-[#94acfc]  pb-1 flex-row items-center">
-                     <Text className='flex-1 text-[#646468]'>{address}</Text>
-
+                     <Text className='flex-1 text-[#646468]'>
+                        {addressPinPoint
+                           ? addressPinPoint
+                           : `${ latitude.toFixed( 6 ) }, ${ longitude.toFixed( 6 ) }`}
+                     </Text>
                   </View>
                </View>
+
                <View className='px-7 mb-6'>
                   <Text className='mb-2 font-semibold text-lg'>
                      Detail Address
                   </Text>
                   <TextInput
-                     value={detailaAddress} // Bind value to state
-                     onChangeText={( text ) => setDetailAddress( text )} // Update state on change
+                     value={detailAddress}
+                     onChangeText={( text ) => setDetailAddress( text )}
                      className="border-b border-[#94acfc]"
-                     placeholder="Enter your address" // Optional placeholder
+                     placeholder={detailAddressCheckout || '(Ex. Jl. ABC Blok A No.5. Pagar Hijau)'}
                   />
                </View>
 
@@ -91,11 +177,11 @@ const Address = ( { route, navigation } ) =>
                      Postal Code
                   </Text>
                   <TextInput
-                     value={postalCode} // Bind value to state
-                     onChangeText={( text ) => setPostalCode( text )} // Update state on change
+                     value={postalCode}
+                     onChangeText={( text ) => setPostalCode( text )}
                      className="border-b border-[#94acfc]"
-                     placeholder="Enter postal code" // Optional placeholder
-                     keyboardType="numeric" // Ensures only numeric input
+                     placeholder={postalCodeCheckout || 'Enter postal code'}
+                     keyboardType="numeric"
                   />
                </View>
             </View>
@@ -118,8 +204,9 @@ const Address = ( { route, navigation } ) =>
                   buttonColor='#F3B02D'
                   onPress={() =>
                   {
-
+                     handleSave();
                   }}
+                  loading={uploading}
                >
                   Save
                </Button>

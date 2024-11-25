@@ -578,8 +578,6 @@ const EditBussiness = ( { navigation, route } ) =>
    // SUBMIT
    const handleUpdate = async () =>
    {
-      console.log( 'error est: ', errorEst );
-
       if ( !name ) setErrorName( 'Business Name is required.' );
       if ( !category ) setErrorCategory( 'Category is required.' );
       if ( !description.trim() ) setErrorDesc( 'Description is required.' );
@@ -595,10 +593,6 @@ const EditBussiness = ( { navigation, route } ) =>
 
       if ( name && category && description && location && licensed && established.toString() && income.length > 0 && prices.toString() && rating.toString() && deposit.toString() && royaltyFee.toString() && outletSales.toString() )
       {
-
-         console.log( "s" );
-
-
          setUploading( true );
 
          try
@@ -634,8 +628,6 @@ const EditBussiness = ( { navigation, route } ) =>
                } ) ),
             };
 
-            console.log( "\nBusiness Data:", businessData );
-
             const response = await putBusinessDataController( jwtToken, businessData, id );
             Alert.alert(
                'Success',
@@ -651,7 +643,6 @@ const EditBussiness = ( { navigation, route } ) =>
                ]
             );
 
-            console.log( 'response update business', response );
          } catch ( error )
          {
             console.error( 'Error uploading files:', error );

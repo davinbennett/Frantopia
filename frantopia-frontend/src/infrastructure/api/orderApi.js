@@ -231,3 +231,26 @@ export const putOrderStatusApi = async ( jwtToken, status, orderId ) =>
       throw error;
    }
 };
+
+export const postOrderApi = async ( jwtToken, data ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_ORDER_URL }`;
+
+   try
+   {
+      console.log(data);
+      
+      const response = await axios.post( url, data, config );
+      return response;
+   } catch ( error )
+   {
+      console.error( 'Error postOrderApi:', error );
+      throw error;
+   }
+};

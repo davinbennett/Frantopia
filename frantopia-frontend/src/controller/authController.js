@@ -1,17 +1,15 @@
-import { setAuthToken, setIsAdmin } from "../infrastructure/redux/slice/authSlice";
+import { setAuthToken, setIsAdmin, setUserId } from "../infrastructure/redux/slice/authSlice";
 import AuthImpl from "../repositories/implementations/authImpl";
 
 export const loginWithGoogleController = async ( dispatch ) =>
 {
    try
    {
-      const { jwtToken, isAdmin } = await AuthImpl.loginWithGoogleImpl();
-
-      console.log( 'jwtToken Controller: ', jwtToken );
-      console.log( 'isAdmin Controller: ', isAdmin );
+      const { jwtToken, isAdmin, userId } = await AuthImpl.loginWithGoogleImpl();
 
       dispatch( setAuthToken( jwtToken ) );
       dispatch( setIsAdmin( isAdmin ) );
+      dispatch( setUserId( userId ) );
 
       return { isAdmin };
    } catch ( error )
@@ -28,6 +26,7 @@ export const logoutController = async ( dispatch ) =>
       await AuthImpl.logoutUser();
       dispatch( setAuthToken( null ) );
       dispatch( setIsAdmin( false ) );
+      dispatch( setUserId( null ) );
       console.log( "User logged out" );
    } catch ( error )
    {

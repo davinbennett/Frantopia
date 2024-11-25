@@ -1,4 +1,4 @@
-import { fetchInformationApi, fetchOrderListApi, getOrderIdByProductIdApi, putOrderStatusApi } from "../infrastructure/api/orderApi";
+import { fetchInformationApi, fetchOrderListApi, getOrderIdByProductIdApi, postOrderApi, putOrderStatusApi } from "../infrastructure/api/orderApi";
 import OrderImpl from "../repositories/implementations/orderImpl";
 import { Text } from "react-native";
 import React, { useState, useEffect } from 'react';
@@ -208,6 +208,27 @@ export const putOrderStatusController = async ( jwtToken, status, orderId ) =>
    } catch ( error )
    {
       console.error( 'Error in update ORDER STATUS:', error );
+      throw error;
+   }
+};
+
+export const postOrderController = async ( jwtToken, data ) =>
+{
+   try
+   {
+      const response = await postOrderApi( jwtToken, data );
+
+      if ( response.data.code === 200 )
+      {
+         console.log( 'ADD ORDER successfully ' );
+         return response.data;
+      } else
+      {
+         throw new Error( 'Failed to ADD ORDER ' );
+      }
+   } catch ( error )
+   {
+      console.error( 'Error in ADD ORDER :', error );
       throw error;
    }
 };

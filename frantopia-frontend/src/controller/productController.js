@@ -1,7 +1,6 @@
 import { fetchGalleryByIdAPI, fetchPackageByIdAPI, fetchProductDetailByIdAPI, fetchProductsApi, getPackageByIdAPI, getProfileByIdAPI, postBusinessDataApi, putBusinessDataApi, putProductStatusApi } from "../infrastructure/api/productApi";
 import { ProductImpl } from "../repositories/implementations/productImpl";
 import { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
 const productImpl = new ProductImpl();
 
 export const getTotalProduct = async ( jwtToken ) =>

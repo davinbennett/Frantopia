@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, StatusBar, Dimensions, ScrollView } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, StatusBar, Dimensions, ScrollView, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Divider } from 'react-native-paper';
@@ -137,7 +137,6 @@ const DetailsCustomer = ( { route, navigation } ) =>
          setStock( stock );
          setProfile( profile );
          setDeposit( deposit );
-         console.log( 'status: ', status );
       } catch ( error )
       {
          console.error( "Error fetching product detail:", error );
@@ -160,7 +159,6 @@ const DetailsCustomer = ( { route, navigation } ) =>
          } ) );
 
          setGallery( formattedGallery );
-         console.log( fetchedGallery );
 
       } catch ( error )
       {
@@ -373,14 +371,30 @@ const DetailsCustomer = ( { route, navigation } ) =>
             {/* Checkout Button */}
             <TouchableOpacity
                className="bg-yellow rounded-xl px-5 py-3 flex-1 items-center"
-               onPress={() => navigation.navigate( 'Checkout', {
-                  item: selectedItem,
-                  productId: id,
-                  ProductName: name
-               } )}
+               onPress={() =>
+               {
+                  if ( !selectedItem )
+                  {
+                     Alert.alert(
+                        "Package must be filled",
+                        "Please select a package",
+                        [ { text: "OK" } ]
+                     );
+                     return;
+                  }
+
+                  navigation.navigate( 'Checkout', {
+                     packages: selectedItem,
+                     productId: id,
+                     productName: name,
+                     licensed: licensed,
+                  } );
+                  console.log( 'Selected Item:', selectedItem );
+               }}
             >
                <Text className="text-white text-lg font-bold">Checkout</Text>
             </TouchableOpacity>
+
          </View>
       </View>
    );

@@ -8,5 +8,12 @@ export const loginToBackendApi = async ( idToken, accessToken ) =>
       idToken,
       accessToken,
    } );
-   return response.data.data.jwtToken;
+
+   const jwtToken = response.data?.data?.jwtToken;
+   const userId = response.data?.data?.user_id;
+
+   console.log(response.data?.data);
+   
+
+   return {jwtToken, userId};
 };

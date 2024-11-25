@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import AuthStackNavigator from './AuthStackNavigation';
 import BottomTabNavigation from './BottomTabNavigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { setAuthToken, setIsAdmin } from '../../infrastructure/redux/slice/authSlice';
+import { setAuthToken, setIsAdmin, setUserId } from '../../infrastructure/redux/slice/authSlice';
 import authImpl from '../../repositories/implementations/authImpl';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, View, Alert } from 'react-native';
@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 const AppNavigator = () =>
 {
    const dispatch = useDispatch();
-   const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
+   const { jwtToken, isAdmin, userId } = useSelector( ( state ) => state.auth );
    const isLoggedIn = !!jwtToken;
    const [ isLoading, setIsLoading ] = useState( true );
 
@@ -36,12 +36,13 @@ const AppNavigator = () =>
    {
       const checkLoginStatus = async () =>
       {
-         const { jwtToken, isAdmin } = await authImpl.checkToken();
+         const { jwtToken, isAdmin, userId } = await authImpl.checkToken();
 
          if ( jwtToken && checkTokenExpiry( jwtToken ) )
          {
             dispatch( setAuthToken( jwtToken ) );
             dispatch( setIsAdmin( isAdmin ) );
+            dispatch( setUserId( userId ) );
          } else
          {
             Alert.alert(

@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
    jwtToken: null,
    isAdmin: false,
+   userId: 0,
 };
 
 const authSlice = createSlice( {
@@ -17,8 +18,12 @@ const authSlice = createSlice( {
       {
          state.isAdmin = action.payload;
       },
+      setUserId: ( state, action ) =>
+      {
+         state.userId = action.payload;
+      },
    },
 } );
 
-export const { setAuthToken, setIsAdmin } = authSlice.actions;
+export const { setAuthToken, setIsAdmin, setUserId } = authSlice.actions;
 export default authSlice.reducer;
