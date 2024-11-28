@@ -1,32 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Alert, Text, FlatList, TouchableOpacity, StatusBar, Dimensions, ScrollView } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Modal, Portal, Button, RadioButton, Divider } from 'react-native-paper';
+import { Modal, Portal, Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { getAddressByIdController } from '../../../controller/userController';
 import { fetchShippingController } from '../../../controller/shippingController';
 import { v4 as uuidv4 } from 'uuid';
 import { postOrderController } from '../../../controller/orderController';
-
 
 const Checkout = ( { route, navigation } ) =>
 {
    const { packages, productId, productName, licensed } = route.params;
    const { jwtToken, isAdmin, userId } = useSelector( ( state ) => state.auth );
    const screenHeight = Dimensions.get( 'screen' ).height;
-   const screenWidth = Dimensions.get( 'screen' ).width;
    const windowHeight = Dimensions.get( 'window' ).height;
    const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
    const [ isLoading, setIsLoading ] = useState( true );
-   const bottomHeight = useSafeAreaInsets().bottom;
 
    const formatCurrency = ( value ) =>
    {
@@ -221,7 +211,7 @@ const Checkout = ( { route, navigation } ) =>
                   text: 'OK',
                   onPress: () =>
                   {
-                     navigation.replace('HomeCustomer');
+                     navigation.replace( 'HomeCustomer' );
                   },
                },
             ]

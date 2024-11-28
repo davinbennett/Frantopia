@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -8,7 +8,7 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { Modal, Portal, Button, RadioButton } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import { useProductListController, useProductListCustomerController } from '../../../controller/productController';
+import { useProductListController } from '../../../controller/productController';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 

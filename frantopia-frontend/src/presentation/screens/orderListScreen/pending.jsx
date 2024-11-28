@@ -1,14 +1,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Text, FlatList, TouchableOpacity, Image, StatusBar, Dimensions, ActivityIndicator, ScrollView } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Modal, Portal, Button, RadioButton, Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { fetchOrderListController } from '../../../controller/orderController';
 import { v4 as uuidv4, v4 } from 'uuid';
@@ -17,11 +12,8 @@ import moment from 'moment';
 const Pending = () =>
 {
    const navigation = useNavigation();
-   const screenHeight = Dimensions.get( 'screen' ).height;
    const screenWidth = Dimensions.get( 'screen' ).width;
-   const windowHeight = Dimensions.get( 'window' ).height;
-   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
-
+   
    const [ isLoading, setIsLoading ] = useState( true );
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
 
@@ -65,8 +57,9 @@ const Pending = () =>
       return (
          <TouchableOpacity
             className='bg-white flex-row rounded-2xl p-3 '
-            onPress={()=>{
-               navigation.navigate('DetailOrder',{
+            onPress={() =>
+            {
+               navigation.navigate( 'DetailOrder', {
                   orderId: item.order_id,
                   user_name: item.user_name,
                   productId: item.product_id,
@@ -77,7 +70,7 @@ const Pending = () =>
                   orderDate: item.order_date,
                   profile: item.profile,
                   totalAmount: item.total_amount
-               })
+               } );
             }}
          >
             <View

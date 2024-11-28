@@ -2,9 +2,6 @@ import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Image,
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
-import { Searchbar } from 'react-native-paper';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
@@ -21,7 +18,6 @@ const AdminHome = () =>
   const windowHeight = Dimensions.get( 'window' ).height;
   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
 
-  const [ searchQuery, setSearchQuery ] = useState( '' );
   const [ selectedOption, setSelectedOption ] = useState( 'Monthly' );
   const [ startDate, setStartDate ] = useState( null );
   const [ endDate, setEndDate ] = useState( null );

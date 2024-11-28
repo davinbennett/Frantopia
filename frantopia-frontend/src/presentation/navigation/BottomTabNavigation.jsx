@@ -2,24 +2,21 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { FontAwesome } from '@expo/vector-icons';
 import Profile from '../screens/profileScreen';
 import AdminHome from '../screens/homeScreen/admin';
 import BusinessList from '../screens/businessListScreen';
-import OrderList from '../screens/orderListScreen/pending';
 import CustomerHome from '../screens/homeScreen/customer';
 import YourBusiness from '../screens/yourBusiness';
-import YourOrder from '../screens/yourOrder';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { Pressable } from 'react-native';
 import { useSelector } from 'react-redux';
 import InformationAdmin from '../screens/detailScreen/admin/informationAdmin';
 import DetailsAdmin from '../screens/detailScreen/admin/details';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StatusBar, Dimensions } from 'react-native';
 import AddBussiness from '../screens/addBusiness';
 import EditBussiness from '../screens/editBusiness';
-import { getFocusedRouteNameFromRoute, NavigationContainer } from '@react-navigation/native';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Pending from '../screens/orderListScreen/pending';
 import Confirm from '../screens/orderListScreen/confirm';
 import DetailOrder from '../screens/detailOrder';
@@ -29,6 +26,10 @@ import Loading from '../screens/loading';
 import Cart from '../screens/cart';
 import Address from '../screens/address';
 import PinPoint from '../screens/pinpoint';
+import PendingYourOrder from '../screens/yourOrder/pending';
+import ConfirmYourOrder from '../screens/yourOrder/confirm';
+import InformationYourBusiness from '../screens/yourBusiness/information';
+import DetailYourBusiness from '../screens/yourBusiness/detail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -195,10 +196,10 @@ const OrderAdminTopTabs = ( { route, navigation } ) =>
             },
          }}
       >
-         <TopTab.Screen name="Pending">
+         <TopTab.Screen name="PendingYourOrder">
             {( props ) => <Pending {...props} />}
          </TopTab.Screen>
-         <TopTab.Screen name="Confirm">
+         <TopTab.Screen name="ConfirmYourOrder">
             {( props ) => <Confirm {...props} />}
          </TopTab.Screen>
       </TopTab.Navigator>
@@ -222,6 +223,82 @@ const OrderAdminStack = () => (
          options={{
             headerShown: false,
             navigationBarColor: '#F3F4FE',
+         }}
+      />
+   </Stack.Navigator>
+);
+
+const YourOrderTopTabs = ( { route, navigation } ) =>
+{
+   // const { } = route.params;
+   const screenHeight = Dimensions.get( 'screen' ).height;
+   const windowHeight = Dimensions.get( 'window' ).height;
+   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
+
+   React.useEffect( () =>
+   {
+      navigation.setOptions( {
+         contentStyle: {
+            backgroundColor: '#f3f4fe',
+         },
+         headerShown: true,
+         header: () => (
+            <View
+               className="bg-blue flex-row px-5 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center"
+               style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8, marginBottom: 18 }}
+            >
+               <Image
+                  source={require( '../../assets/icons/storeMiringKecil2.png' )}
+                  className='absolute -top-10 -right-10'
+               />
+               <Text className='text-3xl text-white font-semibold ml-2'>
+                  Your Order
+               </Text>
+            </View>
+         ),
+      } );
+   }, [ navigation ] );
+
+   return (
+      <TopTab.Navigator
+         screenOptions={{
+            tabBarStyle: {
+               backgroundColor: 'white',
+               marginHorizontal: 25,
+               borderRadius: 12,
+               marginBottom: 0
+            },
+            tabBarLabelStyle: {
+               fontWeight: 'bold',
+            },
+            tabBarIndicatorStyle: {
+               backgroundColor: '#2d70f3',
+               height: 3,
+               width: '45%',
+               left: '3%',
+               borderRadius: 50
+            },
+         }}
+      >
+         <TopTab.Screen name="Pending">
+            {( props ) => <PendingYourOrder {...props} />}
+         </TopTab.Screen>
+         <TopTab.Screen name="Confirm">
+            {( props ) => <ConfirmYourOrder {...props} />}
+         </TopTab.Screen>
+      </TopTab.Navigator>
+   );
+};
+
+const YourOrderCustomerStack = () => (
+   <Stack.Navigator
+      screenOptions={{ animation: 'none' }}
+   >
+      <Stack.Screen
+         name="YourOrder"
+         component={YourOrderTopTabs}
+         options={{
+            headerShown: false,
          }}
       />
    </Stack.Navigator>
@@ -280,6 +357,98 @@ const HomeCustomerStack = () => (
          component={PinPoint}
          options={{
             headerShown: false,
+         }}
+      />
+   </Stack.Navigator>
+);
+
+const YourBusinessDetailTopTabs = ( { route, navigation } ) =>
+{
+   const { orderId, productId, packageId, productName } = route.params;
+   const screenHeight = Dimensions.get( 'screen' ).height;
+   const windowHeight = Dimensions.get( 'window' ).height;
+   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
+
+   React.useEffect( () =>
+   {
+      navigation.setOptions( {
+         contentStyle: {
+            backgroundColor: '#f3f4fe',
+         },
+         headerShown: true,
+         header: () => (
+            <View
+               className="bg-blue flex-row px-5 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center"
+               style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8, marginBottom: 18 }}
+            >
+               <Image
+                  source={require( '../../assets/icons/storeMiringKecil2.png' )}
+                  className='absolute -top-10 -right-10'
+               />
+               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <TouchableOpacity
+                     onPress={() => navigation.goBack()}
+                  >
+                     <MaterialIcons name="keyboard-arrow-left" size={32} color="white" />
+                  </TouchableOpacity>
+                  <Text className='text-3xl text-white font-semibold ml-2'>
+                     {productName}
+                  </Text>
+               </View>
+            </View>
+         ),
+      } );
+   }, [ navigation ] );
+
+   return (
+      <TopTab.Navigator
+         screenOptions={{
+            tabBarStyle: {
+               backgroundColor: 'white',
+               marginHorizontal: 25,
+               borderRadius: 12,
+               marginBottom: 0
+            },
+            tabBarLabelStyle: {
+               fontWeight: 'bold',
+            },
+            tabBarIndicatorStyle: {
+               backgroundColor: '#2d70f3',
+               height: 3,
+               width: '45%',
+               left: '3%',
+               borderRadius: 50
+            },
+         }}
+      >
+         <TopTab.Screen name="Informations">
+            {( props ) => <InformationYourBusiness {...props} orderId={orderId} productId={productId} packageId={packageId}  productName={productName} />}
+         </TopTab.Screen>
+         <TopTab.Screen name="Details">
+            {( props ) => <DetailYourBusiness {...props} orderId={orderId} productId={productId} packageId={packageId} productName={productName} />}
+         </TopTab.Screen>
+      </TopTab.Navigator>
+   );
+};
+
+
+const YourBusinessStack = () => (
+   <Stack.Navigator
+      screenOptions={{ animation: 'none' }}
+   >
+      <Stack.Screen
+         name="YourBusiness"
+         component={YourBusiness}
+         options={{
+            headerShown: false,
+         }}
+      />
+      <Stack.Screen
+         name="YourBusinessDetailTopTabs"
+         component={YourBusinessDetailTopTabs}
+         options={{
+            headerShown: false,
+            navigationBarColor: '#F3F4FE',
          }}
       />
    </Stack.Navigator>
@@ -362,7 +531,6 @@ const BottomTabNavigation = () =>
                      } )( route ),
                   } )}
                   component={OrderAdminStack}
-
                />
                <Tab.Screen
                   name="Profile"
@@ -373,30 +541,53 @@ const BottomTabNavigation = () =>
             <>
                <Tab.Screen
                   name="Home"
-                     options={( { route } ) => ( {
-                        headerShown: false,
-                        tabBarStyle: ( ( route ) =>
+                  options={( { route } ) => ( {
+                     headerShown: false,
+                     tabBarStyle: ( ( route ) =>
+                     {
+                        const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
+                        if ( routeName === 'ProductDetailCustomer' || routeName === 'Checkout' || routeName === 'Loading' || routeName === 'Cart' || routeName === 'Address' ||
+                           routeName === 'PinPoint' )
                         {
-                           const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
-                           if ( routeName === 'ProductDetailCustomer' || routeName === 'Checkout' || routeName === 'Loading' || routeName === 'Cart' || routeName === 'Address' ||
-                           routeName === 'PinPoint')
-                           {
-                              return { display: "none" };
-                           }
-                           return { backgroundColor: '#2D70F3' };
-                        } )( route ),
-                     } )}
-                     component={HomeCustomerStack}
+                           return { display: "none" };
+                        }
+                        return { backgroundColor: '#2D70F3' };
+                     } )( route ),
+                  } )}
+                  component={HomeCustomerStack}
                />
                <Tab.Screen
                   name="Your Business"
-                  options={{ headerShown: false }}
-                  component={YourBusiness}
+                  options={( { route } ) => ( {
+                     headerShown: false,
+                     tabBarStyle: ( ( route ) =>
+                     {
+                        const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
+                        if ( routeName === 'YourBusinessDetailTopTabs' )
+                        {
+                           return { display: "none" };
+                        }
+                        return { backgroundColor: '#2D70F3' };
+                     } )( route ),
+                  } )}
+                  component={YourBusinessStack}
                />
                <Tab.Screen
                   name="Your Order"
-                  options={{ headerShown: false }}
-                  component={YourOrder} />
+                  options={( { route } ) => ( {
+                     headerShown: false,
+                     tabBarStyle: ( ( route ) =>
+                     {
+                        const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
+                        if ( routeName === 'DetailFranchiseCustomer' )
+                        {
+                           return { display: "none" };
+                        }
+                        return { backgroundColor: '#2D70F3' };
+                     } )( route ),
+                  } )}
+                  component={YourOrderCustomerStack}
+               />
                <Tab.Screen
                   name="Profile"
                   options={{ headerShown: false }}

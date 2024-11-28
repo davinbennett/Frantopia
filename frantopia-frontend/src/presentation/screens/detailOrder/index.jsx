@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, Pressable, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, StatusBar, Dimensions, ScrollView, Alert } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Modal, Portal, Button, RadioButton, Divider } from 'react-native-paper';
+import { Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { v4 as uuidv4, v4 } from 'uuid';
 import moment from 'moment';
 import { getPackageByIdController, putProductStatusController } from '../../../controller/productController';
 import { putOrderStatusController } from '../../../controller/orderController';
@@ -18,7 +12,6 @@ const DetailOrder = ( { navigation, route } ) =>
 {
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
    const screenHeight = Dimensions.get( 'screen' ).height;
-   const screenWidth = Dimensions.get( 'screen' ).width;
    const windowHeight = Dimensions.get( 'window' ).height;
    const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
 
@@ -48,6 +41,9 @@ const DetailOrder = ( { navigation, route } ) =>
    const [ price, setPrice ] = useState( null );
    const [ sizeConcept, setSizeConcept ] = useState( null );
 
+   const [ isLoading, setIsLoading ] = useState( true );
+
+
    const fetchPackageById = async () =>
    {
       try
@@ -68,6 +64,9 @@ const DetailOrder = ( { navigation, route } ) =>
       } catch ( error )
       {
          console.error( "Error fetching packages:", error );
+      } finally
+      {
+         setIsLoading( false );
       }
    };
 
@@ -96,7 +95,7 @@ const DetailOrder = ( { navigation, route } ) =>
 
          // Update order status to "decline"
          const orderResponse = await putOrderStatusController( jwtToken, 'decline', orderId );
-         
+
 
          if ( productResponse.code === 200 && orderResponse.code === 200 )
          {

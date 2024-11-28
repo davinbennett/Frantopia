@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Text, FlatList, Image, Dimensions } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Modal, Portal, Button, RadioButton, Divider } from 'react-native-paper';
+import { Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController } from '../../../../controller/productController';
 const DetailsAdmin = ( { id, name } ) =>
 {
    const screenHeight = Dimensions.get( 'screen' ).height;
    const windowHeight = Dimensions.get( 'window' ).height;
-   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
 
    const [ isLoading, setIsLoading ] = useState( true );
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
@@ -214,7 +209,7 @@ const DetailsAdmin = ( { id, name } ) =>
                      <Text className="font-bold text-xl text-blueDark">Detail</Text>
                      <Text>{description || "No description available."}</Text>
                      <Divider bold />
-                     
+
                      <Text className="font-bold text-xl text-blueDark">Products Gallery</Text>
                      <FlatList
                         data={gallery}

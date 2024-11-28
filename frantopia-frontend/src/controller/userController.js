@@ -1,4 +1,4 @@
-import { getAddressByIdAPI, putAddressApi } from "../infrastructure/api/userApi";
+import { getAddressByIdAPI, getProfileByIdAPI, putAddressApi } from "../infrastructure/api/userApi";
 
 export const getAddressByIdController = async ( jwtToken, userId ) =>
 {
@@ -47,5 +47,28 @@ export const putAddressController = async ( jwtToken, addressData, userId ) =>
    {
       console.error( 'Error in update ADDRESS:', error );
       throw error;
+   }
+};
+
+export const getProfileByIdController = async ( jwtToken, userId ) =>
+{
+   try
+   {
+      const {
+         userName = "",
+         profilePicture = "",
+      } = await getProfileByIdAPI( jwtToken, userId );
+
+      return {
+         userName,
+         profilePicture,
+      };
+   } catch ( error )
+   {
+      console.error( "Error in getProfileByIdController:", error );
+      return {
+         userName: "",
+         profilePicture: "",
+      };
    }
 };

@@ -13,7 +13,7 @@ type OrderService interface {
 	GetTotalSold(period, start, end string) (float64, error)
 	GetCategoryAnalytics(period, start, end string) (map[string]interface{}, error)
 	GetOrderByID(orderID string) (map[string]interface{}, error)
-	GetOrdersByStatus(status string, page, limit int) (map[string]interface{}, error)
+	GetOrdersByStatusAndUserId(status string, userId *int,page, limit int) (map[string]interface{}, error)
 	UpdateOrderStatus(orderID int, status string) error
 	GetOrderIdByFranchiseId(franchiseId string) (*uint, error)
 	CreateOrder(model models.Orders) error
@@ -112,8 +112,8 @@ func (s *orderServiceImpl) GetOrderByID(orderID string) (map[string]interface{},
 	return response, nil
 }
 
-func (s *orderServiceImpl) GetOrdersByStatus(status string, page, limit int) (map[string]interface{}, error) {
-	orders, totalItems, err := s.orderRepo.FindByStatus(status, page, limit)
+func (s *orderServiceImpl) GetOrdersByStatusAndUserId(status string, userId *int, page, limit int) (map[string]interface{}, error) {
+	orders, totalItems, err := s.orderRepo.FindByStatusAndUserId(status, userId, page, limit)
 	if err != nil {
 		return nil, err
 	}

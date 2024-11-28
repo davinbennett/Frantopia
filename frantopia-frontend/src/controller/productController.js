@@ -95,6 +95,7 @@ export const useProductListController = () =>
 
 export const fetchProductDetailByIdController = async ( jwtToken, productId ) =>
 {
+   
    try
    {
       const {

@@ -6,7 +6,6 @@ import { Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController } from '../../../../controller/productController';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 
@@ -15,7 +14,6 @@ const DetailsCustomer = ( { route, navigation } ) =>
    const { id, name } = route.params;
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
    const screenHeight = Dimensions.get( 'screen' ).height;
-   const screenWidth = Dimensions.get( 'screen' ).width;
    const windowHeight = Dimensions.get( 'window' ).height;
    const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
    const [ isLoading, setIsLoading ] = useState( true );

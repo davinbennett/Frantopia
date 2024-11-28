@@ -8,13 +8,14 @@ import
    StatusBar,
    Dimensions,
    Alert,
-   Image
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { useDispatch } from 'react-redux';
+import { setAddressPinPoint, setLatitudePinPoint, setLongitudePinPoint } from '../../../infrastructure/redux/slice/userSlice';
 
 const PinPoint = ( { navigation, route } ) =>
 {
@@ -23,13 +24,13 @@ const PinPoint = ( { navigation, route } ) =>
    const navbarHeight = screenHeight - windowHeight + ( StatusBar.currentHeight || 0 );
    const bottomHeight = useSafeAreaInsets().bottom;
 
-   const { onGoBack } = route.params || {};
-
    const [ location, setLocation ] = useState( null );
    const [ errorMsg, setErrorMsg ] = useState( null );
    const [ mapRegion, setMapRegion ] = useState( null );
    const [ loading, setLoading ] = useState( true );
    const [ selectedAddress, setSelectedAddress ] = useState( null );
+
+   const dispatch = useDispatch();
 
    useEffect( () =>
    {
@@ -87,6 +88,18 @@ const PinPoint = ( { navigation, route } ) =>
       } finally
       {
          setLoading( false );
+      }
+   };
+
+   const handleChooseLocation = () =>
+   {
+      if ( selectedAddress )
+      {
+         dispatch( setAddressPinPoint( selectedAddress.address ) );
+         dispatch( setLatitudePinPoint( selectedAddress.coordinates.latitude ) );
+         dispatch( setLongitudePinPoint( selectedAddress.coordinates.longitude ) );
+
+         navigation.goBack();
       }
    };
 
@@ -233,18 +246,7 @@ const PinPoint = ( { navigation, route } ) =>
                   paddingVertical: 10,
                   alignItems: 'center',
                }}
-               onPress={() =>
-               {
-                  if ( selectedAddress )
-                  {
-                     navigation.replace( 'Address', {
-                        address: selectedAddress.address,
-                        latitude: selectedAddress.coordinates.latitude,
-                        longitude: selectedAddress.coordinates.longitude,
-                     } );
-                  }
-
-               }}
+               onPress={handleChooseLocation}
             >
                <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Choose Location</Text>
             </TouchableOpacity>

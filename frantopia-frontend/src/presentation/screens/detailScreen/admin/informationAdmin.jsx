@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StatusBar, Dimensions } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { fetchInformationController } from '../../../../controller/orderController';
 
 const InformationAdmin = ( { id, name } ) =>
 {
-   const screenHeight = Dimensions.get( 'screen' ).height;
-   const windowHeight = Dimensions.get( 'window' ).height;
-   const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
-
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
 
    const [ orderDetails, setOrderDetails ] = useState( {
@@ -54,7 +49,7 @@ const InformationAdmin = ( { id, name } ) =>
             className='mx-7 p-5 bg-white rounded-2xl gap-y-5 mb-5 flex-1'
          >
             <Text className='font-medium'>
-               Status: {status || "Unknown"}
+               Status: {status || "-"}
             </Text>
 
             {/* Header */}

@@ -181,12 +181,13 @@ export const fetchInformationApi = async ( jwtToken, id ) =>
 
 export const fetchOrderListApi = async ( page, limit, filters = {}, jwtToken ) =>
 {
-   const { status } = filters;
+   const { status, userId } = filters;
 
    const params = {
       page,
       limit,
       ...( status !== null && status !== undefined && { status } ),
+      ...( userId !== null && userId !== undefined && { "user-id": userId } ),
    };
 
    const config = {
@@ -197,7 +198,7 @@ export const fetchOrderListApi = async ( page, limit, filters = {}, jwtToken ) =
    };
 
    const url = `${ API_ORDER_URL }`;
-
+   
    try
    {
       const response = await axios.get( url, config );
@@ -244,8 +245,8 @@ export const postOrderApi = async ( jwtToken, data ) =>
 
    try
    {
-      console.log(data);
-      
+      console.log( data );
+
       const response = await axios.post( url, data, config );
       return response;
    } catch ( error )

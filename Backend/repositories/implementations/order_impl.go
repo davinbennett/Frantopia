@@ -229,7 +229,7 @@ func (r *orderImpl) FindByID(orderID string) (*models.Orders, error) {
 	return &order, nil
 }
 
-func (r *orderImpl) FindByStatus(status string, page, limit int) ([]models.Orders, int, error) {
+func (r *orderImpl) FindByStatusAndUserId(status string, userId *int, page, limit int) ([]models.Orders, int, error) {
 	var orders []models.Orders
 	var totalItems int64
 
@@ -237,28 +237,33 @@ func (r *orderImpl) FindByStatus(status string, page, limit int) ([]models.Order
 
 	lowerStatus := strings.ToLower(status)
 
+	query := r.postgresDB.Model(&models.Orders{})
+
+	// Filter berdasarkan status (case-insensitive)
 	if lowerStatus == "confirm" {
-		if err := r.postgresDB.Model(&models.Orders{}).
-			Where("LOWER(status) IN (?)", []string{"completed", "failed"}).
-			Count(&totalItems).
-			Limit(limit).
-			Offset(offset).
-			Find(&orders).Error; err != nil {
-			return nil, 0, err
-		}
+		query = query.Where("LOWER(status) IN (?)", []string{"completed", "failed"})
 	} else {
-		if err := r.postgresDB.Model(&models.Orders{}).
-			Where("LOWER(status) = ?", lowerStatus).
-			Count(&totalItems).
-			Limit(limit).
-			Offset(offset).
-			Find(&orders).Error; err != nil {
-			return nil, 0, err
-		}
+		query = query.Where("LOWER(status) = ?", lowerStatus)
+	}
+
+	// Filter berdasarkan user_id jika ada
+	if userId != nil {
+		query = query.Where("user_id = ?", *userId)
+	}
+
+	// Hitung total items
+	if err := query.Count(&totalItems).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Pagination dan ambil data
+	if err := query.Limit(limit).Offset(offset).Find(&orders).Error; err != nil {
+		return nil, 0, err
 	}
 
 	return orders, int(totalItems), nil
 }
+
 
 func (r *orderImpl) UpdateOrderStatus(orderID int, status string) error {
 	result := r.postgresDB.Model(&models.Orders{}).Where("order_id = ?", orderID).Update("status", status)

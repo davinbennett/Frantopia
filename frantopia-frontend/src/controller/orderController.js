@@ -95,6 +95,9 @@ export const fetchInformationController = async ( jwtToken, productId ) =>
 
    const { status, date, priceTotal, shipmentPrice, insurancePrice, adminPrice } = await fetchInformationApi( jwtToken, orderId );
 
+   console.log("stats control: ", status);
+   
+
    if ( status === 'Failed' )
    {
       return { status: null, date: null, priceTotal: null, shipmentPrice: null, insurancePrice: null, adminPrice: null };

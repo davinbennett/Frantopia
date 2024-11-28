@@ -115,12 +115,22 @@ func (c *OrderController) GetOrderByID(ctx *gin.Context) {
 	})
 }
 
-func (c *OrderController) GetOrdersByStatus(ctx *gin.Context) {
+func (c *OrderController) GetOrdersByStatusAndUserId(ctx *gin.Context) {
 	status := ctx.Query("status")
 	page, _ := strconv.Atoi(ctx.Query("page"))
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
+	userIdParam := ctx.Query("user-id") 
+	var userId *int
+	if userIdParam != "" {
+		id, err := strconv.Atoi(userIdParam)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user_id"})
+			return
+		}
+		userId = &id
+	}
 
-	orders, err := c.orderService.GetOrdersByStatus(status, page, limit)
+	orders, err := c.orderService.GetOrdersByStatusAndUserId(status, userId, page, limit)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 		return

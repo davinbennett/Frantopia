@@ -1,28 +1,48 @@
 {
-  "expo": {
-    "name": "frantopia-frontend",
-    "slug": "frantopia-frontend",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.davinbennett.frantopiafrontend"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    }
-  }
+	"expo": {
+		"name": "frantopia-frontend",
+		"slug": "frantopia-frontend",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./src/assets/images/logoApp.png",
+		"userInterfaceStyle": "light",
+		"splash": {
+			"image": "./src/assets/images/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#F3F4FE"
+		},
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./src/assets/images/logoApp.png",
+				"backgroundColor": "#F3F4FE"
+			},
+			"package": "com.davinbennett.frantopiafrontend"
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		},
+		"plugins": [
+			"@react-native-google-signin/google-signin",
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "The app accesses your photos to let you share them with your friends."
+				}
+			],
+			[
+				"expo-location",
+				{
+					"locationAlwaysAndWhenInUsePermission": "Allow $(Frantopia) to use your location."
+				}
+			]
+		],
+		"extra": {
+			"eas": {
+				"projectId": "9a1c98b1-1a07-4e95-9f94-9ec832da8bc1"
+			}
+		}
+	}
 }

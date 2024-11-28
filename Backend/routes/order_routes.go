@@ -13,7 +13,7 @@ func OrderRoutes(router *gin.RouterGroup, orderController *controllers.OrderCont
 		apiRoutes.GET("/sales-analytics", orderController.GetSalesAnalytics)
 		apiRoutes.GET("/category-analytics", orderController.GetCategoryAnalytics)
 		apiRoutes.GET("/:id", orderController.GetOrderByID)
-		apiRoutes.GET("/", orderController.GetOrdersByStatus)
+		apiRoutes.GET("/", orderController.GetOrdersByStatusAndUserId)
 		apiRoutes.GET("/franchise-id/:franchiseId", orderController.GetIdOrderByFranchiseId)
 		
 		apiRoutes.PUT("/:id/status", orderController.UpdateOrderStatus)

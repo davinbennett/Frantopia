@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Alert, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { View, Text, Alert, TouchableOpacity, StatusBar, Dimensions, TextInput } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Modal, Portal, Button, RadioButton, Divider } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Feather from '@expo/vector-icons/Feather';
 import { putAddressController } from '../../../controller/userController';
 
@@ -20,18 +13,13 @@ const Address = ( { route, navigation } ) =>
    const { latitudePinPoint, longitudePinPoint, addressPinPoint } = useSelector( state => state.user );
 
    const screenHeight = Dimensions.get( 'screen' ).height;
-   const screenWidth = Dimensions.get( 'screen' ).width;
    const windowHeight = Dimensions.get( 'window' ).height;
    const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
    const [ isLoading, setIsLoading ] = useState( true );
-   const bottomHeight = useSafeAreaInsets().bottom;
-
    const [ detailAddress, setDetailAddress ] = useState( '' );
    const [ postalCode, setPostalCode ] = useState( '' );
    const [ latitude, setLatitude ] = useState( 0.0 );
    const [ longitude, setLongitude ] = useState( 0.0 );
-
-   // const { addressPinPoint, latitudePinPoint, longitudePinPoint } = route.params || {};
 
    const { detailAddressCheckout, latitudeCheckout, longitudeCheckout, postalCodeCheckout } = route.params;
 
@@ -133,14 +121,7 @@ const Address = ( { route, navigation } ) =>
                         </Text>
                      </View>
                      <TouchableOpacity
-                        onPress={() => navigation.navigate( 'PinPoint', {
-                           onSelectLocation: ( data ) =>
-                           {
-                              setLatitude( data.latitudePinPoint );
-                              setLongitude( data.longitudePinPoint );
-                              setDetailAddress( data.addressPinPoint );
-                           },
-                        } )}
+                        onPress={() => navigation.navigate( 'PinPoint' )}
                      >
                         <Text
                            className='text-blue'
