@@ -22,7 +22,7 @@ export const fetchTotalProduct = async ( jwtToken ) =>
 
 export const fetchProductsApi = async ( page, limit, filters = {}, jwtToken ) =>
 {
-   const { priceMin, priceMax, location, category } = filters;
+   const { priceMin, priceMax, location, category, status } = filters;
 
    const params = {
       page,
@@ -31,6 +31,7 @@ export const fetchProductsApi = async ( page, limit, filters = {}, jwtToken ) =>
       ...( priceMax !== null && priceMax !== undefined && { "price-max": priceMax } ),
       ...( location !== null && location !== undefined && { location } ),
       ...( category !== null && category !== undefined && { category } ),
+      ...( status !== null && status !== undefined && { status } ),
    };
 
    try

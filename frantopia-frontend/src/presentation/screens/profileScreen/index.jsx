@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, Dimensions, StatusBar, View, Image } from 'react-native';
+import { Text, TouchableOpacity, Dimensions, StatusBar, View, Image, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector, useDispatch } from 'react-redux';
@@ -6,6 +6,7 @@ import { logoutController } from '../../../controller/authController';
 import { Input } from 'react-native-elements';
 import { getProfileByIdAPI } from '../../../infrastructure/api/userApi';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 const Profile = ( { navigation } ) =>
 {
@@ -21,12 +22,38 @@ const Profile = ( { navigation } ) =>
 
    const handleLogout = async () =>
    {
-      await logoutController( dispatch );
-      navigation.reset( {
-         index: 0,
-         routes: [ { name: 'AuthStackNavigator' } ],
-      } );
+      Alert.alert(
+         'Logout',
+         'Are you sure you want to logout?',
+         [
+            {
+               text: 'Cancel',
+               style: 'cancel',
+            },
+            {
+               text: 'Logout',
+               onPress: async () =>
+               {
+                  try
+                  {
+                     await logoutController( dispatch );
+                     navigation.reset( {
+                        index: 0,
+                        routes: [ { name: 'AuthStackNavigator' } ],
+                     } );
+
+                     console.log( 'Logout berhasil.' );
+                  } catch ( error )
+                  {
+                     console.error( 'Gagal logout:', error );
+                  }
+               },
+            },
+         ],
+         { cancelable: true }
+      );
    };
+
 
    const [ userName, setUserName ] = useState( '' );
    const [ profilePicture, setProfilePicture ] = useState( '' );
@@ -68,16 +95,28 @@ const Profile = ( { navigation } ) =>
             className='absolute -top-6 -right-9'
          />
          <View className='items-center justify-center gap-y-6'>
-            <Text className='text-3xl text-white font-semibold text-center'>
+            <Text className='text-3xl mt-6 text-white font-semibold text-center'>
                User Profile
             </Text>
-            <Image
-               className='rounded-full'
-               style={{ height: screenWidth * 0.3, width: screenWidth * 0.3 }}
-               source={{ uri: profilePicture || '' }}
-            />
-            <Text className='text-white text-lg font-medium'>
-               {userName || ''}
+            {
+               isLoading ? (
+                  <SkeletonPlaceholder>
+                     <SkeletonPlaceholder.Item
+                        height={screenWidth * 0.3}
+                        width={screenWidth * 0.3}
+                        borderRadius={100}
+                     />
+                  </SkeletonPlaceholder>
+               ) : (
+                  <Image
+                     className="rounded-full"
+                     style={{ height: screenWidth * 0.3, width: screenWidth * 0.3 }}
+                     source={{ uri: profilePicture }}
+                  />
+               )
+            }
+            <Text className='text-white text-3xl font-bold'>
+               Hi, {userName || ''} 👋
             </Text>
          </View>
          <TouchableOpacity

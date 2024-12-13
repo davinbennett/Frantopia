@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type cartImpl struct {
@@ -84,16 +85,18 @@ func (r *cartImpl) AddToCart(userID int, cartItem models.CartItem) error {
 
 	if cart.ID.IsZero() {
 		// Create new cart if it doesn't exist
+		cartItem.CartID = primitive.NewObjectID()
 		cart = models.Cart{
 			ID:        primitive.NewObjectID(),
 			UserID:    userID,
 			ListCart:  []models.CartItem{cartItem},
 			CreatedAt: now,
-			UpdatedAt:  now,
+			UpdatedAt: now,
 		}
 		_, err = collection.InsertOne(context.Background(), cart)
 	} else {
 		// Update existing cart
+		cartItem.CartID = primitive.NewObjectID()
 		update := bson.M{
 			"$push": bson.M{"list-cart": cartItem},
 			"$set":  bson.M{"updated_at": time.Now().Add(7 * time.Hour)},
@@ -101,5 +104,34 @@ func (r *cartImpl) AddToCart(userID int, cartItem models.CartItem) error {
 		_, err = collection.UpdateOne(context.Background(), filter, update)
 	}
 
+	return err
+}
+
+func (r *cartImpl) UpdateStatusCart(userID int, cartID, status string) error {
+	cartObjectID, err := primitive.ObjectIDFromHex(cartID)
+	if err != nil {
+		return err
+	}
+
+	// Filter untuk mencari dokumen pengguna berdasarkan `user_id`
+	filter := bson.M{"user_id": userID, "list-cart.cart_id": cartObjectID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"list-cart.$[elem].status": status,
+		},
+	}
+
+	arrayFilters := options.ArrayFilters{
+		Filters: []interface{}{
+			bson.M{"elem.cart_id": cartObjectID},
+		},
+	}
+
+	updateOptions := options.UpdateOptions{
+		ArrayFilters: &arrayFilters,
+	}
+
+	_, err = r.mongoDB.Collection("carts").UpdateOne(context.TODO(), filter, update, &updateOptions)
 	return err
 }

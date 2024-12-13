@@ -22,15 +22,15 @@ const formatPrice = ( price ) =>
 {
    if ( price >= 1_000_000_000 )
    {
-      return 'Rp. ' + ( price / 1_000_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' B';
+      return 'Rp. ' + ( Math.floor( price / 1_000_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' B';
    }
    if ( price >= 1_000_000 )
    {
-      return 'Rp. ' + ( price / 1_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' M';
+      return 'Rp. ' + ( Math.floor( price / 1_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' M';
    }
    if ( price >= 1_000 )
    {
-      return 'Rp. ' + ( price / 1_000 ).toFixed( 1 ).replace( '.', ',' ) + ' K';
+      return 'Rp. ' + ( Math.floor( price / 1_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' K';
    }
    return 'Rp. ' + price;
 };
@@ -56,7 +56,6 @@ const BusinessList = () =>
 
    const renderItem = ( { item } ) =>
    {
-
       const handlePressDetail = () =>
       {
          console.log( 'productId: ', item.id );
@@ -153,8 +152,8 @@ const BusinessList = () =>
                      <MaterialIcons name="location-on" size={13} color="#2d70f3" />
                      <Text
                         className="text-xs "
-                        numberOfLines={1} // Membatasi hanya 1 baris
-                        ellipsizeMode="tail" // Memotong teks di akhir
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
                      >
                         {item.location}
                      </Text>
@@ -572,22 +571,30 @@ const BusinessList = () =>
                      </View>
 
                      <View className='my-5'>
-                        <FlatList
-                           data={products}
-                           renderItem={renderItem}
-                           keyExtractor={( item ) => item.id.toString()}
-                           numColumns={2}
-                           contentContainerStyle={{
-                           }}
-                           columnWrapperStyle={{
-                              justifyContent: 'space-between',
-                              columnGap: 9
-                           }}
-                           showsVerticalScrollIndicator={false}
-                           onEndReached={handleLoadMore}
-                           onEndReachedThreshold={0.5}
-                           ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
-                        />
+                        {
+                           products ? (
+                              <FlatList
+                                 data={products}
+                                 renderItem={renderItem}
+                                 keyExtractor={( item ) => item.id.toString()}
+                                 numColumns={2}
+                                 contentContainerStyle={{
+                                 }}
+                                 columnWrapperStyle={{
+                                    justifyContent: 'space-between',
+                                    columnGap: 9
+                                 }}
+                                 showsVerticalScrollIndicator={false}
+                                 onEndReached={handleLoadMore}
+                                 onEndReachedThreshold={0.5}
+                                 ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
+                              />
+                           ) : (
+                              <Text className='text-lg font-medium text-center'>
+                                 Data is Empty
+                              </Text>
+                           )
+                        }
                      </View>
                   </View>
                )

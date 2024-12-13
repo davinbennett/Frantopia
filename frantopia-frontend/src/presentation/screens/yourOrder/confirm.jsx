@@ -100,9 +100,18 @@ const ConfirmYourOrder = () =>
                </View>
             </View>
             <View className='absolute right-3 top-3'>
-               <Text className='font-bold text-lg text-yellow'>
-                  {item.status}
-               </Text>
+               {
+                  item.status === 'Completed' ? (
+                     <Text className='font-bold text-lg text-green-500'>
+                        {item.status}
+                     </Text>
+                  ) : (
+                     <Text className='font-bold text-lg text-red-500'>
+                        {item.status}
+                     </Text>
+                  )
+               }
+
             </View>
 
          </View>

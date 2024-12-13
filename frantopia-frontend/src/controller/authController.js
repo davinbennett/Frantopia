@@ -14,6 +14,10 @@ export const loginWithGoogleController = async ( dispatch ) =>
       return { isAdmin };
    } catch ( error )
    {
+      if ( error.message.includes( 'getTokens requires a user to be signed in' ) || errorMessage.includes( 'Cannot read property \'idToken\' of undefined' ) )
+      {
+         return;
+      }
       console.error( 'Login Error:', error );
       throw error;
    }

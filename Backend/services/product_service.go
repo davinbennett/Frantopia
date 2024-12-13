@@ -13,7 +13,7 @@ import (
 type ProductService interface {
 	GetTotalProducts() (int, error)
 	SearchProductByName(name string) ([]map[string]interface{}, error)
-	SearchByFilters(priceMin, priceMax, location, category string, page, limit int) (map[string]interface{}, error)
+	SearchByFilters(priceMin, priceMax, location, category, status string, page, limit int) (map[string]interface{}, error)
 	GetProductByID(productID string) (map[string]interface{}, error)
 	GetProductGallery(productID string) (map[string]interface{}, error)
 	GetPackageByID(productID string, packageID string) (map[string]interface{}, error)
@@ -62,8 +62,8 @@ func (s *productServiceImpl) SearchProductByName(name string) ([]map[string]inte
 	return response, nil
 }
 
-func (s *productServiceImpl) SearchByFilters(priceMin, priceMax, location, category string, page, limit int) (map[string]interface{}, error) {
-	products, totalItems, err := s.productRepo.FindByFilters(priceMin, priceMax, location, category, page, limit)
+func (s *productServiceImpl) SearchByFilters(priceMin, priceMax, location, category, status string, page, limit int) (map[string]interface{}, error) {
+	products, totalItems, err := s.productRepo.FindByFilters(priceMin, priceMax, location, category, status, page, limit)
 	if err != nil {
 		return nil, err
 	}

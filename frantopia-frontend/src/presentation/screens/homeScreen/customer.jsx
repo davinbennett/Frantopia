@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { useProductListController } from '../../../controller/productController';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import Cart from '../cart';
 
 const CustomerHome = () =>
 {
@@ -19,18 +20,19 @@ const CustomerHome = () =>
    {
       if ( price >= 1_000_000_000 )
       {
-         return 'Rp. ' + ( price / 1_000_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' B';
+         return 'Rp. ' + ( Math.floor( price / 1_000_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' B';
       }
       if ( price >= 1_000_000 )
       {
-         return 'Rp. ' + ( price / 1_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' M';
+         return 'Rp. ' + ( Math.floor( price / 1_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' M';
       }
       if ( price >= 1_000 )
       {
-         return 'Rp. ' + ( price / 1_000 ).toFixed( 1 ).replace( '.', ',' ) + ' K';
+         return 'Rp. ' + ( Math.floor( price / 1_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' K';
       }
       return 'Rp. ' + price;
    };
+
 
    const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
 
@@ -55,6 +57,7 @@ const CustomerHome = () =>
       priceMax: null,
       category: null,
       location: null,
+      status: 'available',
    } );
 
    const renderItem = ( { item } ) =>
@@ -89,7 +92,7 @@ const CustomerHome = () =>
             </View>
 
             {/* content */}
-            <View className="pt-2  px-3">
+            <View className="pt-2 px-3">
                <Text className="font-bold text-lg text-ellipsis overflow-hidden whitespace-nowrap" numberOfLines={1}>
                   {item.name}
                </Text>
@@ -188,13 +191,40 @@ const CustomerHome = () =>
    useFocusEffect(
       useCallback( () =>
       {
+         const updatedFilters = {};
+
+         if ( minPrice !== null )
+         {
+            updatedFilters.priceMin = minPrice.toString();
+         }
+
+         if ( maxPrice !== null )
+         {
+            updatedFilters.priceMax = maxPrice.toString();
+         }
+
+         if ( selectedCategory !== null )
+         {
+            updatedFilters.category = selectedCategory;
+         }
+
+         if ( selectedPlace !== null )
+         {
+            updatedFilters.location = selectedPlace.name;
+         }
+
+         updatedFilters.status = 'available';
+
+         setFilters( updatedFilters );
          resetPagination();
          getDataByFilter( filters, jwtToken );
-      }, [] )
+      }, [ minPrice, maxPrice, selectedCategory, selectedPlace ] )
    );
 
    useEffect( () =>
    {
+
+
       resetPagination();
       getDataByFilter( filters, jwtToken );
 
@@ -206,34 +236,6 @@ const CustomerHome = () =>
       loadMore( filters, jwtToken );
    };
 
-   useEffect( () =>
-   {
-      const updatedFilters = {};
-
-      if ( minPrice !== null )
-      {
-         updatedFilters.priceMin = minPrice.toString();
-      }
-
-      if ( maxPrice !== null )
-      {
-         updatedFilters.priceMax = maxPrice.toString();
-      }
-
-      if ( selectedCategory )
-      {
-         updatedFilters.category = selectedCategory;
-      }
-
-      if ( selectedPlace )
-      {
-         updatedFilters.location = selectedPlace.name;
-      }
-
-      setFilters( updatedFilters );
-   }, [ minPrice, maxPrice, selectedCategory, selectedPlace ] );
-
-
 
    return (
       <SafeAreaView className="flex-1 bg-background" edges={[ 'left', 'right', 'bottom' ]}>
@@ -241,8 +243,8 @@ const CustomerHome = () =>
 
          {/* App Bar */}
          <View
-            className="bg-blue flex-row px-7 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center"
-            style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8, marginBottom: 18 }}
+            className="bg-blue flex-row px-7 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center justify-between"
+            style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8 }}
          >
             <Image
                source={require( '../../../assets/icons/storeMiringKecil.png' )}
@@ -252,6 +254,8 @@ const CustomerHome = () =>
             <Text className='text-3xl text-white font-semibold'>
                Home
             </Text>
+
+            <Cart/>
          </View>
 
          <FlatList
@@ -263,7 +267,7 @@ const CustomerHome = () =>
                () => (
                   <View className='mx-7' >
                      <View
-                        className='flex-1 bg-white flex-row items-center  rounded-xl'
+                        className='flex-1 bg-white flex-row items-center mt-5 rounded-xl'
                         style={{
                            shadowColor: 'black',
                            shadowOffset: { width: 0, height: 2 },
@@ -544,22 +548,31 @@ const CustomerHome = () =>
                      </View>
 
                      <View className='my-5'>
-                        <FlatList
-                           data={products.filter( ( item ) => item.status !== 'sold' )}
-                           renderItem={renderItem}
-                           keyExtractor={( item ) => item.id.toString()}
-                           numColumns={2}
-                           contentContainerStyle={{
-                           }}
-                           columnWrapperStyle={{
-                              justifyContent: 'space-between',
-                              columnGap: 9
-                           }}
-                           showsVerticalScrollIndicator={false}
-                           onEndReached={handleLoadMore}
-                           onEndReachedThreshold={0.5}
-                           ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
-                        />
+                        {
+                           products ? (
+                              <FlatList
+                                 data={products}
+                                 renderItem={renderItem}
+                                 keyExtractor={( item ) => item.id.toString()}
+                                 numColumns={2}
+                                 contentContainerStyle={{
+                                 }}
+                                 columnWrapperStyle={{
+                                    justifyContent: 'space-between',
+                                    columnGap: 9
+                                 }}
+                                 showsVerticalScrollIndicator={false}
+                                 onEndReached={handleLoadMore}
+                                 onEndReachedThreshold={0.5}
+                                 ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
+                              />
+                           ) : (
+                              <Text className='text-lg font-medium text-center'>
+                                 Data is Empty
+                              </Text>
+                           )
+                        }
+
                      </View>
                   </View>
                )

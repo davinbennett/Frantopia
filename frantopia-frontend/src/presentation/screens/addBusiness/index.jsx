@@ -37,6 +37,10 @@ const AddBussiness = ( { navigation } ) =>
          setImage( imageResult.path );
       } catch ( error )
       {
+         if ( error.message && error.message.includes( 'User cancelled image selection' ) )
+         {
+            return;
+         }
          console.error( 'Error taking photo:', error );
       }
    };
@@ -53,6 +57,10 @@ const AddBussiness = ( { navigation } ) =>
          setImage( imageResult.path );
       } catch ( error )
       {
+         if ( error.message && error.message.includes( 'User cancelled image selection' ) )
+         {
+            return;
+         }
          console.error( 'Error selecting photo:', error );
       }
    };
@@ -125,6 +133,10 @@ const AddBussiness = ( { navigation } ) =>
          setPhotos( ( prevPhotos ) => [ ...prevPhotos, newPhoto ] );
       } catch ( error )
       {
+         if ( error.message && error.message.includes( 'User cancelled image selection' ) )
+         {
+            return;
+         }
          console.error( 'Error taking photo:', error );
       }
    };
@@ -146,6 +158,10 @@ const AddBussiness = ( { navigation } ) =>
          setPhotos( ( prevPhotos ) => [ ...prevPhotos, newPhoto ] );
       } catch ( error )
       {
+         if ( error.message && error.message.includes( 'User cancelled image selection' ) )
+         {
+            return;
+         }
          console.error( 'Error selecting photo:', error );
       }
    };

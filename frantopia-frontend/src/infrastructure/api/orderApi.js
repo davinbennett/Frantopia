@@ -245,8 +245,6 @@ export const postOrderApi = async ( jwtToken, data ) =>
 
    try
    {
-      console.log( data );
-
       const response = await axios.post( url, data, config );
       return response;
    } catch ( error )

@@ -70,6 +70,7 @@ func (pc *ProductController) GetProductByFilters() gin.HandlerFunc {
 		priceMax := c.Query("price-max")
 		location := c.Query("location")
 		category := c.Query("category")
+		status := c.Query("status")
 
 		// Pagination parameter
 		page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -82,7 +83,7 @@ func (pc *ProductController) GetProductByFilters() gin.HandlerFunc {
 			limit = 10
 		}
 
-		products, err := pc.productService.SearchByFilters(priceMin, priceMax, location, category, page, limit)
+		products, err := pc.productService.SearchByFilters(priceMin, priceMax, location, category, status, page, limit)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
 			return

@@ -100,7 +100,7 @@ func getFirstWord(location string) string {
 	return firstWord
 }
 
-func (r *productImpl) FindByFilters(priceMin, priceMax, location, category string, page, limit int) ([]*models.Franchise, int64, error) {
+func (r *productImpl) FindByFilters(priceMin, priceMax, location, category, status string, page, limit int) ([]*models.Franchise, int64, error) {
 
 	var products []*models.Franchise
 
@@ -129,6 +129,9 @@ func (r *productImpl) FindByFilters(priceMin, priceMax, location, category strin
 	}
 	if category != "" {
 		filter["category"] = category
+	}
+	if status != "" {
+		filter["status"] = status
 	}
 
 	// Pagination setting

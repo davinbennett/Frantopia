@@ -3,7 +3,8 @@ package controllers
 import (
 	"Backend/models"
 	"Backend/services"
-	// "fmt"
+	"fmt"
+
 	"net/http"
 	"strconv"
 
@@ -121,4 +122,34 @@ func (cc *CartController) AddToCart(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Item added to cart successfully"})
+}
+
+func (c *CartController) UpdateStatusCart(ctx *gin.Context) {
+	userIDStr := ctx.Param("id")
+
+	var req struct {
+		CartID string `json:"cart_id" binding:"required"`
+		Status string `json:"status" binding:"required"`
+	}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	fmt.Println("f: ", req.Status)
+
+	err = c.cartService.UpdateStatusCart(userID, req.CartID, req.Status)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Cart item status successfully updated"})
 }

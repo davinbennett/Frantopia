@@ -19,5 +19,6 @@ func UserRoutes(router *gin.RouterGroup, userController *controllers.UserControl
 		apiRoutes.POST("/:id/cart", cartController.AddToCart)
 
 		apiRoutes.PUT("/:id/address", userController.UpdateAddress)
+		apiRoutes.PUT("/:id/cart/status", cartController.UpdateStatusCart)
 	}
 }

@@ -11,6 +11,7 @@ type CartService interface {
 	GetCartByUserID(userID int) ([]map[string]interface{}, int, error)
 	DeleteCartItem(userID int, cartID string) error
 	AddToCart(userID int, cartItem models.CartItem) error
+	UpdateStatusCart(userID int, cartID, status string) error
 }
 
 type cartServiceImpl struct {
@@ -46,6 +47,9 @@ func (s *cartServiceImpl) GetCartByUserID(userID int) ([]map[string]interface{},
 			"gross_profit":   item.GrossProfit,
 			"income":         item.Income,
 			"price":          item.Price,
+			"status":         item.Status,
+			"profile":        item.Profile,
+			"licensed":       item.Licensed,
 		})
 	}
 
@@ -62,6 +66,10 @@ func (s *cartServiceImpl) DeleteCartItem(userID int, cartID string) error {
 }
 
 func (s *cartServiceImpl) AddToCart(userID int, cartItem models.CartItem) error {
-	fmt.Println(cartItem.PackageID + " | " + cartItem.FranchiseName )
+	fmt.Println(cartItem.PackageID + " | " + cartItem.FranchiseName)
 	return s.cartRepo.AddToCart(userID, cartItem)
+}
+
+func (s *cartServiceImpl) UpdateStatusCart(userID int, cartID, status string) error {
+	return s.cartRepo.UpdateStatusCart(userID, cartID, status)
 }

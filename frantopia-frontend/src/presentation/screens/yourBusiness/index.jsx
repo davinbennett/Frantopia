@@ -130,7 +130,7 @@ const YourBusiness = () =>
 
    const renderEmptyComponent = () => (
       <View className='w-full h-full flex-1' style={{ paddingBottom: screenHeight * 0.7 }}>
-         <Text className='text-center'>Data is Empty</Text>
+         <Text className='text-lg font-medium text-center'>Data is Empty</Text>
       </View>
    );
 
@@ -222,7 +222,7 @@ const YourBusiness = () =>
          {/* App Bar */}
          <View
             className="bg-blue flex-row px-7 w-full rounded-bl-2xl rounded-br-2xl gap-y-3 items-center"
-            style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8, marginBottom: 18 }}
+            style={{ height: navbarHeight, paddingTop: StatusBar.currentHeight, paddingBottom: 8}}
          >
             <Image
                source={require( '../../../assets/icons/storeMiringKecil.png' )}
@@ -234,7 +234,7 @@ const YourBusiness = () =>
             </Text>
          </View>
 
-         <ScrollView showsVerticalScrollIndicator={false} className='px-7'>
+         <ScrollView showsVerticalScrollIndicator={false} className='px-7 my-5'>
             <FlatList
                data={data}
                renderItem={renderItem}

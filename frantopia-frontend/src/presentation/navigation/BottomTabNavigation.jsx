@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -30,6 +30,7 @@ import PendingYourOrder from '../screens/yourOrder/pending';
 import ConfirmYourOrder from '../screens/yourOrder/confirm';
 import InformationYourBusiness from '../screens/yourBusiness/information';
 import DetailYourBusiness from '../screens/yourBusiness/detail';
+import YourCart from '../screens/cart/yourCart';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -196,10 +197,10 @@ const OrderAdminTopTabs = ( { route, navigation } ) =>
             },
          }}
       >
-         <TopTab.Screen name="PendingYourOrder">
+         <TopTab.Screen name="Pending">
             {( props ) => <Pending {...props} />}
          </TopTab.Screen>
-         <TopTab.Screen name="ConfirmYourOrder">
+         <TopTab.Screen name="Confirm">
             {( props ) => <Confirm {...props} />}
          </TopTab.Screen>
       </TopTab.Navigator>
@@ -337,11 +338,10 @@ const HomeCustomerStack = () => (
          }}
       />
       <Stack.Screen
-         name="Cart"
-         component={Cart}
+         name="YourCart"
+         component={YourCart}
          options={{
             headerShown: false,
-            navigationBarColor: '#F3F4FE',
          }}
       />
       <Stack.Screen
@@ -422,7 +422,7 @@ const YourBusinessDetailTopTabs = ( { route, navigation } ) =>
          }}
       >
          <TopTab.Screen name="Informations">
-            {( props ) => <InformationYourBusiness {...props} orderId={orderId} productId={productId} packageId={packageId}  productName={productName} />}
+            {( props ) => <InformationYourBusiness {...props} orderId={orderId} productId={productId} packageId={packageId} productName={productName} />}
          </TopTab.Screen>
          <TopTab.Screen name="Details">
             {( props ) => <DetailYourBusiness {...props} orderId={orderId} productId={productId} packageId={packageId} productName={productName} />}
@@ -457,6 +457,27 @@ const YourBusinessStack = () => (
 const BottomTabNavigation = () =>
 {
    const { isAdmin } = useSelector( ( state ) => state.auth );
+
+   const [ admin, setAdmin ] = useState( true );
+
+   useEffect( () =>
+   {
+      const timer = setTimeout( () =>
+      {
+         if ( isAdmin === false )
+         {
+            console.log( 'isAdmin is false: ', isAdmin );
+         }
+         if ( isAdmin === true )
+         {
+            console.log( 'isAdmin is true: ', isAdmin );
+         }
+
+         setAdmin( isAdmin );
+      }, 0 );
+      return () => clearTimeout( timer );
+   }, [ isAdmin ] );
+
 
    return (
       <Tab.Navigator
@@ -494,7 +515,7 @@ const BottomTabNavigation = () =>
 
          } )}
       >
-         {isAdmin ? (
+         {admin ? (
             <>
                <Tab.Screen
                   name="Home"
@@ -546,7 +567,7 @@ const BottomTabNavigation = () =>
                      tabBarStyle: ( ( route ) =>
                      {
                         const routeName = getFocusedRouteNameFromRoute( route ) ?? "";
-                        if ( routeName === 'ProductDetailCustomer' || routeName === 'Checkout' || routeName === 'Loading' || routeName === 'Cart' || routeName === 'Address' ||
+                        if ( routeName === 'ProductDetailCustomer' || routeName === 'Checkout' || routeName === 'Loading' || routeName === 'YourCart' || routeName === 'Address' ||
                            routeName === 'PinPoint' )
                         {
                            return { display: "none" };

@@ -43,7 +43,11 @@ func (s *orderServiceImpl) GetTotalSold(period, start, end string) (float64, err
 
 func (s *orderServiceImpl) GetCategoryAnalytics(period, start, end string) (map[string]interface{}, error) {
 	// Step 1: Ambil semua franchise_id dari tabel Order
+	fmt.Println("period: ", period)
+	fmt.Println("start: ", start)
+	fmt.Println("end: ", end)
 	orderFranchises, err := s.orderRepo.GetOrderFranchiseIDs(period, start, end) // <- SUCCESS
+	fmt.Println("order franchise: ", orderFranchises)
 	if err != nil {
 		return nil, err
 	}

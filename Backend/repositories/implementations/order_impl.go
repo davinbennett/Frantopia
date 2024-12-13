@@ -165,7 +165,7 @@ func (r *orderImpl) GetTotalSold(period, start, end string) (float64, error) {
 	case "monthly":
 		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "quarterly":
-		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+		query = query.Where("EXTRACT(QUARTER FROM order_date) = EXTRACT(QUARTER FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "yearly":
 		query = query.Where("EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "day":
@@ -194,7 +194,7 @@ func (r *orderImpl) GetOrderFranchiseIDs(period, start, end string) ([]string, e
 	case "monthly":
 		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "quarterly":
-		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+		query = query.Where("EXTRACT(QUARTER FROM order_date) = EXTRACT(QUARTER FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "yearly":
 		query = query.Where("EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
 	case "day":

@@ -5,6 +5,9 @@ import { Divider } from 'react-native-paper';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController } from '../../../../controller/productController';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+
 const DetailsAdmin = ( { id, name } ) =>
 {
    const screenHeight = Dimensions.get( 'screen' ).height;
@@ -171,6 +174,11 @@ const DetailsAdmin = ( { id, name } ) =>
          .finally( () => setIsLoading( false ) );
    }, [ id ] );
 
+   const formatCurrency = ( value ) =>
+   {
+      return 'Rp ' + value.toString().replace( /\B(?=(\d{3})+(?!\d))/g, '.' );
+   };
+
    return (
       <View className='flex-1 bg-background px-7 '>
          <FlatList
@@ -187,27 +195,99 @@ const DetailsAdmin = ( { id, name } ) =>
                   }}
                   className="bg-white rounded-2xl mb-5 "
                >
-                  <Image
-                     source={{
-                        uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlwn9-P2hxqO3WX1CYqWLHeP6H1Zk6KwSYfA&s',
-                     }}
-                     className="w-full rounded-tl-2xl rounded-tr-2xl mb-1"
-                     style={{ height: screenHeight * 0.2 }}
-                  />
+                  {
+                     profile ? (
+                        <Image
+                           source={{
+                              uri: profile,
+                           }}
+                           className="w-full rounded-tl-2xl rounded-tr-2xl mb-1"
+                           style={{ height: screenHeight * 0.2 }}
+                        />
+                     ) : (
+                        <SkeletonPlaceholder>
+                           <SkeletonPlaceholder.Item width="100%" height={screenHeight * 0.2} />
+                        </SkeletonPlaceholder>
+                     )
+                  }
+
                   <View className="p-5 gap-y-3">
                      <Text className="text-2xl font-bold">{name || "N/A"}</Text>
 
-                     <View className="flex-row gap-x-2 items-center">
-                        <MaterialIcons name="content-cut" size={24} color="#2d70f3" />
-                        <Text className="text-[#515151] font-medium">{category || "N/A"}</Text>
+                     <View className='flex-row justify-between'>
+                        <View className="flex-row gap-x-2 items-center">
+                           <MaterialIcons name="content-cut" size={20} color="#2d70f3" />
+                           <Text className="text-[#515151] font-medium">{category || "N/A"}</Text>
+                        </View>
+                        <View className="flex-row gap-x-1 items-center">
+                           <AntDesign name="star" size={20} color="orange" />
+                           <Text className='ml-1 font-medium text-[#515151]'>{rating || "N/A"}</Text>
+                        </View>
                      </View>
 
-                     <Text>est. {established || "N/A"}</Text>
+                     <View className='flex-row justify-between'>
+                        <Text className='flex-1'>est. {established || "N/A"}</Text>
+                        <View className='flex-row flex-1 justify-end'>
+                           <MaterialIcons name="location-pin" size={18} color="grey" />
+                           <Text className='ml-1'>{location || "N/A"}</Text>
+                        </View>
+                     </View>
 
                      <Divider bold />
 
                      <Text className="font-bold text-xl text-blueDark">Detail</Text>
                      <Text>{description || "No description available."}</Text>
+
+                     <Divider bold />
+
+                     <Text className="font-bold text-xl text-blueDark">Business Detail</Text>
+                     <View className='flex-row justify-between'>
+                        <View className='rounded-xl ml-4 flex-1 gap-y-3'>
+                           <Text className='font-bold text-lg '>
+                              Start From
+                           </Text>
+                           <Text
+                              className='ml-4'
+                              numberOfLines={1}
+                              adjustsFontSizeToFit
+                           >
+                              {formatCurrency( price || '' )}
+                           </Text>
+                           <Text className='font-bold text-lg '>
+                              Licensed
+                           </Text>
+                           <Text className='ml-4'>
+                              {licensed || ''}
+                           </Text>
+                           <Text className='font-bold text-lg '>
+                              Deposit
+                           </Text>
+                           <Text
+                              className='ml-4'
+                              numberOfLines={1}
+                              adjustsFontSizeToFit
+                           >
+                              {formatCurrency( deposit || '' )}
+                           </Text>
+                        </View>
+
+                        <View className='w-4' />
+
+                        <View className='rounded-xl flex-1 gap-y-3'>
+                           <Text className='font-bold text-lg '>
+                              Royalty Fee
+                           </Text>
+                           <Text className='ml-4'>
+                              {royaltyFee || ''}%
+                           </Text>
+                           <Text className='font-bold text-lg '>
+                              Outlet Sales
+                           </Text>
+                           <Text className='ml-4'>
+                              {outletSales || ''}
+                           </Text>
+                        </View>
+                     </View>
                      <Divider bold />
 
                      <Text className="font-bold text-xl text-blueDark">Products Gallery</Text>

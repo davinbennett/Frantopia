@@ -5,6 +5,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { fetchOrderListController } from '../../../controller/orderController';
+import { useFocusEffect } from '@react-navigation/native';
 import { v4 as uuidv4, v4 } from 'uuid';
 import moment from 'moment';
 

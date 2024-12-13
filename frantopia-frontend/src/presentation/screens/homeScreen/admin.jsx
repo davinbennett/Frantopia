@@ -12,7 +12,7 @@ import DatePicker from 'react-native-date-picker';
 
 const AdminHome = () =>
 {
-  const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
+  const { jwtToken, isAdmin, userId } = useSelector( ( state ) => state.auth );
 
   const screenHeight = Dimensions.get( 'screen' ).height;
   const windowHeight = Dimensions.get( 'window' ).height;
@@ -37,6 +37,24 @@ const AdminHome = () =>
   const [ maxDataValueCategory, setMaxDataValueCategory ] = useState( 0 );
   const [ bestSellingCategory, setBestSellingCategory ] = useState( '-' );
 
+  const formatPrice = ( price ) =>
+  {
+    if ( price >= 1_000_000_000 )
+    {
+      return 'Rp. ' + ( Math.floor( price / 1_000_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' B';
+    }
+    if ( price >= 1_000_000 )
+    {
+      return 'Rp. ' + ( Math.floor( price / 1_000_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' M';
+    }
+    if ( price >= 1_000 )
+    {
+      return 'Rp. ' + ( Math.floor( price / 1_000 * 10 ) / 10 ).toString().replace( '.', ',' ) + ' K';
+    }
+    return 'Rp. ' + price;
+  };
+
+
   useEffect( () =>
   {
     if ( jwtToken )
@@ -48,11 +66,10 @@ const AdminHome = () =>
         loadTotalSold(),
         getBarChartData(),
         getBarChartDataCategory(),
+        console.log( "admin? ", isAdmin ),
       ] )
         .catch( error => console.error( 'Error fetching data:', error ) )
         .finally( () => setLoading( false ) );
-
-
     }
   }, [ jwtToken, selectedOption, startDate, endDate ] );
 
@@ -110,7 +127,6 @@ const AdminHome = () =>
       const period = startDate && endDate ? 'day' : selectedOption;
 
       const data = await fetchSalesAnalyticsController( period.toLowerCase(), startDate, endDate, jwtToken );
-      // console.log( 'data admin:', data );
       if ( data == null || data.length === 0 )
       {
         setBarChartData( [] );
@@ -171,6 +187,19 @@ const AdminHome = () =>
 
   const isDateRangeSelected = startDate && endDate;
 
+  const formatDate = ( dateString ) =>
+  {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const date = new Date( dateString );
+    const day = date.getDate();
+    const month = months[ date.getMonth() ];
+    const year = date.getFullYear().toString().slice( -2 );
+    return `${ day } ${ month }'${ year }`;
+  };
+
   return (
     <SafeAreaView className='bg-background flex-1' edges={[ 'left', 'right', 'bottom' ]}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
@@ -215,10 +244,6 @@ const AdminHome = () =>
           />
         </View> */}
 
-        {/* Cart Icon */}
-        {/* <TouchableOpacity className="ml-3">
-          <Ionicons name="cart-outline" size={26} color="white" />
-        </TouchableOpacity> */}
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 18 }}>
@@ -315,9 +340,14 @@ const AdminHome = () =>
 
         {/* Display Selected Date Range */}
         {startDate && endDate && (
-          <Text className="text-center mt-5 font-semibold text-lg">
-            Selected Range Date: {startDate} - {endDate}
-          </Text>
+          <View>
+            <Text className="text-center mt-5 text-lg">
+              Selected Range Date :
+            </Text>
+            <Text className="text-center mt-1 font-bold text-xl">
+              {formatDate( startDate )} - {formatDate( endDate )}
+            </Text>
+          </View>
         )}
 
         {/* Container atas */}
@@ -365,7 +395,7 @@ const AdminHome = () =>
                   Total Franchise Sold
                 </Text>
                 <Text className='text-3xl font-extrabold'>
-                  {totalSold}
+                  {formatPrice( totalSold )}
                 </Text>
               </View>
             </View>
@@ -375,7 +405,7 @@ const AdminHome = () =>
           <View className=''>
             {barChartData && barChartData.length > 0 ? (
               <BarChart
-                barWidth={26}
+                barWidth={46}
                 noOfSections={3}
                 barBorderRadius={4}
                 frontColor="lightgray"
@@ -384,13 +414,7 @@ const AdminHome = () =>
                 xAxisThickness={0}
                 hideRules
                 hideYAxisText
-                referenceLine1Position={420}
-                referenceLine1Config={{
-                  color: 'gray',
-                  dashWidth: 2,
-                  dashGap: 3,
-                }}
-                maxValue={maxDataValue * 1.15}
+                maxValue={maxDataValue * 1.12}
               />
             ) : (
               <Text className='text-lg font-medium text-center'>
@@ -431,7 +455,7 @@ const AdminHome = () =>
           <View className=''>
             {barChartDataCategory && barChartDataCategory.length > 0 ? (
               <BarChart
-                barWidth={26}
+                barWidth={73}
                 noOfSections={3}
                 barBorderRadius={4}
                 frontColor="lightgray"
@@ -440,14 +464,7 @@ const AdminHome = () =>
                 xAxisThickness={0}
                 hideRules
                 hideYAxisText
-                referenceLine1Position={420}
-                referenceLine1Config={{
-                  color: 'gray',
-                  dashWidth: 2,
-                  dashGap: 3,
-                }}
-                horizontal
-                maxValue={maxDataValueCategory * 1.03}
+                maxValue={maxDataValueCategory * 1.12}
               />
             ) : (
               <Text className="text-lg font-medium text-center">
@@ -457,11 +474,11 @@ const AdminHome = () =>
 
           </View>
         </View>
-        <TouchableOpacity onPress={() => { console.log( jwtToken ); }}>
+        {/* <TouchableOpacity onPress={() => { console.log( jwtToken ); }}>
           <Text>
             S
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
       </ScrollView>
     </SafeAreaView>

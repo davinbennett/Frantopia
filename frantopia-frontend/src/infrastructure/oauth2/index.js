@@ -31,6 +31,10 @@ export const signInWithGoogleOauth2 = async () =>
       return { idToken, accessToken, userInfo };
    } catch ( error )
    {
+      if ( error.message && error.message.includes( 'getTokens requires a user to be signed in' ) )
+      {
+         return;
+      }
       console.error( 'Google Sign-in error:', error );
       throw error;
    }

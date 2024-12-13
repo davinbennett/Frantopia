@@ -86,3 +86,147 @@ export const getProfileByIdAPI = async ( jwtToken, userId ) =>
       throw error;
    }
 };
+
+export const getCountCartByIdAPI = async ( jwtToken, userId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_USER_URL }/${ userId }/cart/count`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+
+      const data = response?.data?.data || {};
+
+      const countCart = data?.count || 0;
+
+      return {
+         countCart: countCart,
+      };
+   } catch ( error )
+   {
+      console.error( "Error getCountCartByIdAPI:", error.response?.data || error.message );
+      throw error;
+   }
+};
+
+export const fetchCartByIdAPI = async ( jwtToken, userId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_USER_URL }/${ userId }/cart`;
+
+   try
+   {
+      const response = await axios.get( url, config );
+      const data = response?.data?.data || null;
+
+      const listCart = data[ 'list-cart' ] || [];
+      const formattedListCart = listCart.map( item => ( {
+         cartId: item?.cart_id || null,
+         franchiseId: item?.franchise_id || null,
+         packageId: item?.package_id || null,
+         franchiseName: item?.[ 'franchise-name' ] || null,
+         packageName: item?.[ 'package-name' ] || null,
+         sizeConcept: item?.size_concept || null,
+         grossProfit: item?.gross_profit || null,
+         income: item?.income || null,
+         price: item?.price || null,
+         status: item?.status || null,
+         profile: item?.profile || null,
+         licensed: item?.licensed || null,
+      } ) );
+
+      return { formattedListCart };
+   } catch ( error )
+   {
+      const errorMessage = error.response?.data?.error || error.message;
+      console.log( 'Error fetchCartByIdAPI:', errorMessage );
+
+      if ( errorMessage === 'Cart not found' )
+      {
+         console.log( 's' );
+
+         return { formattedListCart: [] };
+      }
+      return { formattedListCart: [] };
+   }
+};
+
+export const deleteCartAPI = async ( jwtToken, userId, cartId ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_USER_URL }/${ userId }/cart`;
+
+   try
+   {
+      const response = await axios.delete( url, {
+         ...config,
+         data: { cart_id: cartId },
+      } );
+
+      return response.data;
+   } catch ( error )
+   {
+      console.error( "Error deleting cart:", error );
+      throw error;
+   }
+};
+
+
+export const postCartApi = async ( jwtToken, userId, data ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_USER_URL }/${ userId }/cart`;
+
+   try
+   {
+      const response = await axios.post( url, data, config );
+      return response;
+   } catch ( error )
+   {
+      console.error( 'Error postCartApi:', error );
+      throw error;
+   }
+};
+
+export const putStatusCartAPI = async ( jwtToken, userId, cartId, status ) =>
+{
+   const config = {
+      headers: {
+         Authorization: `Bearer ${ jwtToken }`,
+      },
+   };
+
+   const url = `${ API_USER_URL }/${ userId }/cart/status`;
+   console.log( 'sa: ', cartId );
+   try
+   {
+      const response = await axios.put( url, { cart_id: cartId, status: status }, config );
+
+      return response.data;
+   } catch ( error )
+   {
+      console.error( "Error updating status cart API:", error );
+      throw error;
+   }
+};

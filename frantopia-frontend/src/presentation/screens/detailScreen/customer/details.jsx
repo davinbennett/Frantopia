@@ -7,12 +7,14 @@ import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { fetchGalleryByIdController, fetchPackageByIdController, fetchProductDetailByIdController } from '../../../../controller/productController';
 import AntDesign from '@expo/vector-icons/AntDesign';
-
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { fetchCartByIdController, postCartController } from '../../../../controller/userController';
 
 const DetailsCustomer = ( { route, navigation } ) =>
 {
    const { id, name } = route.params;
-   const { jwtToken, isAdmin } = useSelector( ( state ) => state.auth );
+   const { jwtToken, isAdmin, userId } = useSelector( ( state ) => state.auth );
    const screenHeight = Dimensions.get( 'screen' ).height;
    const windowHeight = Dimensions.get( 'window' ).height;
    const navbarHeight = screenHeight - windowHeight + StatusBar.currentHeight;
@@ -102,6 +104,7 @@ const DetailsCustomer = ( { route, navigation } ) =>
    const [ stock, setStock ] = useState( null );
    const [ profile, setProfile ] = useState( null );
    const [ deposit, setDeposit ] = useState( null );
+   const [ status, setStatus ] = useState( null );
 
    const fetchProductDetail = async () =>
    {
@@ -120,7 +123,8 @@ const DetailsCustomer = ( { route, navigation } ) =>
             stock,
             profile,
             deposit,
-            name, status
+            name,
+            status
          } = await fetchProductDetailByIdController( jwtToken, id );
 
          setCategory( category );
@@ -135,6 +139,7 @@ const DetailsCustomer = ( { route, navigation } ) =>
          setStock( stock );
          setProfile( profile );
          setDeposit( deposit );
+         setStatus( status );
       } catch ( error )
       {
          console.error( "Error fetching product detail:", error );
@@ -203,7 +208,7 @@ const DetailsCustomer = ( { route, navigation } ) =>
    };
 
    return (
-      <View className='flex-1 bg-background '>
+      <View className='flex-1 bg-background'>
          <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
          {/* App Bar */}
@@ -232,44 +237,53 @@ const DetailsCustomer = ( { route, navigation } ) =>
             className="rounded-2xl mx-7"
             showsVerticalScrollIndicator={false}
          >
-            <Image
-               source={{
-                  uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlwn9-P2hxqO3WX1CYqWLHeP6H1Zk6KwSYfA&s',
-               }}
-               className="w-full rounded-2xl mb-1 mt-5"
-               style={{ height: screenHeight * 0.25 }}
-            />
+            {
+               profile ? (
+                  <Image
+                     source={{
+                        uri: profile,
+                     }}
+                     className="w-full rounded-tl-2xl rounded-tr-2xl mb-1 mt-5"
+                     style={{ height: screenHeight * 0.2 }}
+                  />
+               ) : (
+                  <SkeletonPlaceholder>
+                     <SkeletonPlaceholder.Item width="100%" height={screenHeight * 0.2} />
+                  </SkeletonPlaceholder>
+               )
+            }
             <View className="py-5 gap-y-3">
                <Text className="text-2xl font-bold">{name || "N/A"}</Text>
                <View className='flex-row justify-between'>
                   <View className="flex-row gap-x-2 items-center">
-                     <MaterialIcons name="content-cut" size={24} color="#2d70f3" />
+                     <MaterialIcons name="content-cut" size={20} color="#2d70f3" />
                      <Text className="text-[#515151] font-medium">{category || "N/A"}</Text>
                   </View>
                   <View className="flex-row gap-x-1 items-center">
-                     <AntDesign name="star" size={24} color="orange" />
-                     <Text className='ml-1 text-lg text-[#515151]'>{rating || "N/A"}</Text>
+                     <AntDesign name="star" size={20} color="orange" />
+                     <Text className='ml-1 font-medium text-[#515151]'>{rating || "N/A"}</Text>
                   </View>
                </View>
 
                <View className='flex-row justify-between'>
-                  <Text>est. {established || "N/A"}</Text>
-                  <View className='flex-row'>
-                     <MaterialIcons name="location-pin" size={18} color="black" />
-                     <Text className='ml-1'>{location || "N/A"}</Text>
+                  <Text className='flex-1'>est. {established || "N/A"}</Text>
+                  <View className='flex-row flex-1 justify-end'>
+                     <MaterialIcons name="location-pin" size={18} color="grey" />
+                     <Text numberOfLines={1} className='ml-1 text-ellipsis overflow-hidden'>{location || "N/A"}</Text>
                   </View>
-
                </View>
-
 
                <Divider bold />
 
                <Text className="font-bold text-xl text-blueDark">Detail</Text>
+
                <Text>{description || "No description available."}</Text>
+
                <Divider bold />
+
                <Text className="font-bold text-xl text-blueDark">Business Detail</Text>
                <View className='flex-row justify-between'>
-                  <View className='bg-white rounded-xl p-4 flex-1 gap-y-3'>
+                  <View className='rounded-xl flex-1 gap-y-3 ml-4'>
                      <Text className='font-bold text-lg '>
                         Start From
                      </Text>
@@ -296,11 +310,9 @@ const DetailsCustomer = ( { route, navigation } ) =>
                      >
                         {formatCurrency( deposit || '' )}
                      </Text>
-
-
                   </View>
                   <View className='w-4' />
-                  <View className='bg-white rounded-xl p-4 flex-1 gap-y-3'>
+                  <View className='rounded-xl flex-1 gap-y-3'>
                      <Text className='font-bold text-lg '>
                         Royalty Fee
                      </Text>
@@ -341,17 +353,70 @@ const DetailsCustomer = ( { route, navigation } ) =>
          {/* Bottom Bar */}
          <View className="bg-blue flex-row justify-between items-center px-6 pt-5 pb-2">
             {/* Logo Cart */}
-            {/* <TouchableOpacity
+            <TouchableOpacity
                className="flex-row items-center flex-1 border-2 border-white rounded-xl justify-center py-3 px-5"
+               onPress={async () =>
+               {
+                  if ( !selectedItem )
+                  {
+                     Alert.alert(
+                        "Package must be filled",
+                        "Please select a package",
+                        [ { text: "OK" } ]
+                     );
+                     return;
+                  }
 
+                  // cek apa udh ada di cart
+                  try
+                  {
+                     const { formattedListCart } = await fetchCartByIdController( jwtToken, userId );
+                     const foundItem = formattedListCart.find( item => item.franchiseId === id );
+                     if ( foundItem )
+                     {
+                        Alert.alert(
+                           "Failed",
+                           "Franchise is already in cart!",
+                           [ { text: "OK" } ]
+                        );
+
+                     } else
+                     {
+                        const data = {
+                           franchise_id: id,
+                           package_id: selectedItem.id,
+                           "franchise-name": name,
+                           "package-name": selectedItem.title,
+                           size_concept: selectedItem.sizeConcept,
+                           gross_profit: selectedItem.grossProfit,
+                           income: selectedItem.income,
+                           price: selectedItem.price,
+                           status: status,
+                           profile: profile,
+                           licensed: licensed
+                        };
+
+                        await postCartController( jwtToken, userId, data );
+
+                        Alert.alert(
+                           "Success",
+                           "Franchise successfully added to cart!",
+                           [ { text: "OK" } ]
+                        );
+                     }
+                  } catch ( error )
+                  {
+                     console.error( "Error fetching list cart:", error );
+                  }
+
+
+               }}
             >
                <FontAwesome name="cart-plus" size={22} color="white" />
                <Text className="ml-5 text-white text-lg font-bold">Add to Cart</Text>
             </TouchableOpacity>
 
-            <View className='w-5' /> */}
-
-            <View className='flex-1'>
+            {/* <View className='flex-1'>
                <Text className="text-white">
                   Total Order
                </Text>
@@ -362,13 +427,13 @@ const DetailsCustomer = ( { route, navigation } ) =>
                >
                   {formatCurrency( selectedItem.price || 0 )}
                </Text>
-            </View>
+            </View> */}
 
             <View className='w-5' />
 
             {/* Checkout Button */}
             <TouchableOpacity
-               className="bg-yellow rounded-xl px-5 py-3 flex-1 items-center"
+               className="bg-yellow rounded-xl px-5 py-3 flex-1 items-center border-2 border-yellow"
                onPress={() =>
                {
                   if ( !selectedItem )
@@ -381,13 +446,16 @@ const DetailsCustomer = ( { route, navigation } ) =>
                      return;
                   }
 
+                  console.log( 'Selected Item:', selectedItem );
                   navigation.navigate( 'Checkout', {
                      packages: selectedItem,
                      productId: id,
                      productName: name,
                      licensed: licensed,
+                     fromCart: false,
+                     cartId: ""
                   } );
-                  console.log( 'Selected Item:', selectedItem );
+
                }}
             >
                <Text className="text-white text-lg font-bold">Checkout</Text>

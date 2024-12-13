@@ -19,7 +19,7 @@ const AuthStackNavigator = () => (
       <Stack.Screen
          name="BottomTabNavigation"
          component={BottomTabNavigation}
-         initialParams={{ isAdmin: false }}
+         // initialParams={{ isAdmin: false }}
          options={{ headerShown: false, navigationBarColor: '#2D70F3' }}
       />
    </Stack.Navigator>

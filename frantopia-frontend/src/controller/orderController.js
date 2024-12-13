@@ -5,6 +5,23 @@ import React, { useState, useEffect } from 'react';
 
 const orderImpl = new OrderImpl();
 
+const formatPrice = ( price ) =>
+{
+   if ( price >= 1_000_000_000 )
+   {
+      return ( price / 1_000_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' B';
+   }
+   if ( price >= 1_000_000 )
+   {
+      return ( price / 1_000_000 ).toFixed( 1 ).replace( '.', ',' ) + ' M';
+   }
+   if ( price >= 1_000 )
+   {
+      return ( price / 1_000 ).toFixed( 1 ).replace( '.', ',' ) + ' K';
+   }
+   return price;
+};
+
 export const totalSoldOrderController = async ( period, startDate, endDate, jwtToken ) =>
 {
    return await orderImpl.getTotalSold( period, startDate, endDate, jwtToken );
@@ -30,9 +47,9 @@ export const fetchSalesAnalyticsController = async ( period, startDate, endDate,
       return {
          value: item.totalSold,
          label,
-         frontColor: '#177AD5',
+         frontColor: '#2d70f3',
          topLabelComponent: () => (
-            <Text className='mb-1 font-semibold'>{item.totalSold}</Text>
+            <Text className='mb-1 font-semibold'>{formatPrice(item.totalSold)}</Text>
          ),
       };
    } );
@@ -67,7 +84,7 @@ export const fetchCategoryAnalysisController = async ( period, startDate, endDat
    const transformedCategoryData = categoryData.map( item => ( {
       value: item.total,
       label: item.name,
-      frontColor: '#177AD5',
+      frontColor: '#2d70f3',
       topLabelComponent: () => (
          <Text className='mb-1 font-semibold'>{item.total}</Text>
       ),

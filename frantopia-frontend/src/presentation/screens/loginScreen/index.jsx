@@ -6,6 +6,7 @@ import
 } from '@react-navigation/native';
 import { loginWithGoogleController } from '../../../controller/authController';
 import { useDispatch } from 'react-redux';
+import { setIsAdmin } from '../../../infrastructure/redux/slice/authSlice';
 
 const LoginScreen = () =>
 {
@@ -23,6 +24,10 @@ const LoginScreen = () =>
          );
       } catch ( error )
       {
+         if ( error.message && error.message.includes( 'getTokens requires a user to be signed in' ) )
+         {
+            return;
+         }
          console.log( 'Login failed', error.message );
       }
    };

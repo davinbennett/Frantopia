@@ -9,4 +9,5 @@ type CartRepository interface {
 	GetCartByUserID(userID int) (*models.Cart, error)
 	DeleteCartItem(userID int, cartID string) error
 	AddToCart(userID int, cartItem models.CartItem) error
+	UpdateStatusCart(userID int, cartID, status string) error
 }
