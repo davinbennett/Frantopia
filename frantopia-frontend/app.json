@@ -4,7 +4,7 @@
 		"slug": "frantopia",
 		"version": "1.0.0",
 		"orientation": "portrait",
-		"icon": "./src/assets/icons/logoApp512.png",
+		"icon": "./src/assets/icons/logoAppFix(1).png",
 		"userInterfaceStyle": "light",
 		"splash": {
 			"image": "./src/assets/images/splash.png",
@@ -16,7 +16,7 @@
 		},
 		"android": {
 			"adaptiveIcon": {
-				"foregroundImage": "./src/assets/images/logoApp.png",
+				"foregroundImage": "./src/assets/icons/logoAppFix(1).png",
 				"backgroundColor": "#F3F4FE"
 			},
 			"package": "com.davinbennett.frantopiafrontend"

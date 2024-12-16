@@ -1,29 +1,29 @@
 {
-  "project_info": {
-    "project_number": "274669334741",
-    "project_id": "frantopia-31c24",
-    "storage_bucket": "frantopia-31c24.appspot.com"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:274669334741:android:8227d21da247001ba1325c",
-        "android_client_info": {
-          "package_name": "com.davinbennett.frantopiafrontend"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDawyTl0vM4i6qbwMkSKF0Br0oAEzPlGZM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
+	"project_info": {
+		"project_number": "274669334741",
+		"project_id": "frantopia-31c24",
+		"storage_bucket": "frantopia-31c24.appspot.com"
+	},
+	"client": [
+		{
+			"client_info": {
+				"mobilesdk_app_id": "1:274669334741:android:8227d21da247001ba1325c",
+				"android_client_info": {
+					"package_name": "com.davinbennett.frantopiafrontend"
+				}
+			},
+			"oauth_client": [],
+			"api_key": [
+				{
+					"current_key": "AIzaSyDawyTl0vM4i6qbwMkSKF0Br0oAEzPlGZM"
+				}
+			],
+			"services": {
+				"appinvite_service": {
+					"other_platform_oauth_client": []
+				}
+			}
+		}
+	],
+	"configuration_version": "1"
 }
