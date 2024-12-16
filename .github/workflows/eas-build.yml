@@ -10,18 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18.x
           cache: npm
+          cache-dependency-path: ./frantopia-frontend/package-lock.json
+
       - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
+
       - name: Install dependencies
+        working-directory: ./frantopia-frontend
         run: npm ci
+
       - name: Build on EAS
+        working-directory: ./frantopia-frontend
         run: eas build --platform android --non-interactive --no-wait
+
       - name: Run EAS Build
+        working-directory: ./frantopia-frontend
         run: eas build --platform android --profile preview
