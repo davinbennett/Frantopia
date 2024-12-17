@@ -1,54 +1,55 @@
 {
-  "expo": {
-    "name": "Frantopia",
-    "slug": "frantopia-frontend",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./src/assets/icons/logoAppFix(1).png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./src/assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F3F4FE"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./src/assets/icons/logoAppFix(1).png",
-        "backgroundColor": "#F3F4FE"
-      },
-      "package": "com.davinbennett.frantopiafrontend",
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
-      ]
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "@react-native-google-signin/google-signin",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "The app accesses your photos to let you share them with your friends."
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow $(Frantopia) to use your location."
-        }
-      ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "9a1c98b1-1a07-4e95-9f94-9ec832da8bc1"
-      }
-    },
-    "owner": "davinbennett"
-  }
+	"expo": {
+		"name": "Frantopia",
+		"slug": "frantopia-frontend",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./src/assets/icons/logoAppFix(1).png",
+		"userInterfaceStyle": "light",
+		"splash": {
+			"image": "./src/assets/images/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#F3F4FE"
+		},
+		"ios": {
+			"supportsTablet": true
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./src/assets/icons/logoAppFix(1).png",
+				"backgroundColor": "#F3F4FE"
+			},
+			"package": "com.davinbennett.frantopiafrontend",
+			"permissions": [
+				"android.permission.RECORD_AUDIO",
+				"android.permission.ACCESS_COARSE_LOCATION",
+				"android.permission.ACCESS_FINE_LOCATION"
+			],
+			"googleServicesFile": "./android/app/google-services.json"
+		},
+		"web": {
+			"favicon": "./assets/favicon.png"
+		},
+		"plugins": [
+			"@react-native-google-signin/google-signin",
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "The app accesses your photos to let you share them with your friends."
+				}
+			],
+			[
+				"expo-location",
+				{
+					"locationAlwaysAndWhenInUsePermission": "Allow $(Frantopia) to use your location."
+				}
+			]
+		],
+		"extra": {
+			"eas": {
+				"projectId": "9a1c98b1-1a07-4e95-9f94-9ec832da8bc1"
+			}
+		},
+		"owner": "davinbennett"
+	}
 }
