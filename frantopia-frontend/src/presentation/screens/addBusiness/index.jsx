@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { postBusinessDataController } from '../../../controller/productController';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
+import { firebase } from "@react-native-firebase/app";
 import { Input } from 'react-native-elements';
 import { Dropdown } from 'react-native-element-dropdown';
 import DatePicker from 'react-native-date-picker';

@@ -145,7 +145,9 @@ export const fetchOrderListController = () =>
       try
       {
          const { data } = await fetchOrderListApi( 1, limit, filters, jwtToken );
-         const { order_data: newOrders, total_pages } = data;
+
+         const newOrders = data?.order_data || [];
+         const total_pages = data?.total_pages || 1;
 
          setOrders( newOrders );
          if ( 1 < total_pages )
@@ -158,7 +160,9 @@ export const fetchOrderListController = () =>
          }
       } catch ( error )
       {
-         console.error( "Error fetching products:", error );
+         if ( error.message === 'Cannot convert null value to object')
+            return
+         console.log( "Error fetching products:", error );
       } finally
       {
          setLoading( false );
@@ -173,7 +177,9 @@ export const fetchOrderListController = () =>
       try
       {
          const { data } = await fetchOrderListApi( currentPage, limit, filters, jwtToken );
-         const { order_data: newOrders, total_pages } = data;
+         
+         const newOrders = data?.order_data || [];
+         const total_pages = data?.total_pages || 1;
 
          setOrders( ( prevOrders ) => [ ...prevOrders, ...newOrders ] );
          if ( currentPage < total_pages )
@@ -186,7 +192,9 @@ export const fetchOrderListController = () =>
          }
       } catch ( error )
       {
-         console.error( "Error fetching products:", error );
+         if ( error.message === 'Cannot convert null value to object' )
+            return
+         console.log( "Error fetching products:", error );
       } finally
       {
          setLoading( false );

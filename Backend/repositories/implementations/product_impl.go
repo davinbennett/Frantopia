@@ -44,6 +44,8 @@ func (r *productImpl) GetTotalProducts() (int, error) {
 func (r *productImpl) GetCategoryByFranchiseID(franchiseID string) (string, error) {
 	var franchise models.Franchise
 
+	fmt.Println("franchiseID: ", franchiseID)
+
 	objectId, err := primitive.ObjectIDFromHex(franchiseID)
 	if err != nil {
 		return "", fmt.Errorf("invalid franchise ID format: %v", err)

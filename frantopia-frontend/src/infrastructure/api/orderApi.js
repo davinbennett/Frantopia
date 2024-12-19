@@ -76,8 +76,7 @@ export const fetchSalesAnalyticsAPI = async ( period, startDate, endDate, jwtTok
       return transformedData;
    } catch ( error )
    {
-      console.error( 'Error fetching sales analytics API:', error );
-      throw error;
+      console.log( 'Error fetching sales analytics API:', error );
    }
 };
 
@@ -109,8 +108,8 @@ export const fetchCategoryAnalysisAPI = async ( period, startDate, endDate, jwtT
       return { bestSellingCategory, categoryData: transformedCategoryData };
    } catch ( error )
    {
-      console.error( 'Error fetching sales analytics API:', error );
-      throw error;
+      console.log( 'Error fetching category analytics API:', error );
+      
    }
 };
 
@@ -202,7 +201,7 @@ export const fetchOrderListApi = async ( page, limit, filters = {}, jwtToken ) =
    try
    {
       const response = await axios.get( url, config );
-      const data = response?.data?.data;
+      const data = response?.data?.data || [];
 
       return { data };
    } catch ( error )

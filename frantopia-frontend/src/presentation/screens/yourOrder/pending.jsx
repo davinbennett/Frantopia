@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Image, Dimensions, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, Dimensions, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import 'react-native-get-random-values';
 import { useSelector } from 'react-redux';
 import { fetchOrderListController } from '../../../controller/orderController';
-import { useFocusEffect } from '@react-navigation/native';
-import { v4 as uuidv4, v4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 
 const PendingYourOrder = () =>
@@ -23,15 +22,14 @@ const PendingYourOrder = () =>
       userId: userId
    } );
 
-   useFocusEffect(
-      useCallback( () =>
-      {
-
-         resetPagination();
-         getDataByFilter( filters, jwtToken );
-         console.log( orders );
-      }, [] )
-   );
+   const [ refreshing, setRefreshing ] = useState( false );
+   const handleRefresh = async () =>
+   {
+      setRefreshing( true );
+      resetPagination();
+      getDataByFilter( filters, jwtToken );
+      setRefreshing( false );
+   };
 
    useEffect( () =>
    {
@@ -114,19 +112,33 @@ const PendingYourOrder = () =>
          <ScrollView
             showsVerticalScrollIndicator={false}
          >
-            <FlatList
-               data={orders}
-               renderItem={renderItem}
-               keyExtractor={( item ) => uuidv4()}
-               showsVerticalScrollIndicator={false}
-               onEndReached={handleLoadMore}
-               onEndReachedThreshold={0.5}
-               ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
-               scrollEnabled={false}
-               contentContainerStyle={{
-                  rowGap: 9
-               }}
-            />
+            {
+               orders ? (
+                  <FlatList
+                     data={orders}
+                     renderItem={renderItem}
+                     keyExtractor={( item ) => uuidv4()}
+                     showsVerticalScrollIndicator={false}
+                     onEndReached={handleLoadMore}
+                     onEndReachedThreshold={0.5}
+                     ListFooterComponent={loading ? <ActivityIndicator size="large" color="#2d70f3" /> : null}
+                     scrollEnabled={false}
+                     contentContainerStyle={{
+                        rowGap: 9
+                     }}
+                     refreshControl={
+                        <RefreshControl
+                           refreshing={refreshing}
+                           onRefresh={handleRefresh}
+                           colors={[ "#1e90ff" ]}
+                        />
+                     }
+                  />
+               ) : (
+                  <Text className='text-lg font-medium text-center flex-1'>Your order is empty</Text>
+               )
+            }
+
          </ScrollView>
       </View>
    );

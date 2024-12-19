@@ -50,6 +50,7 @@ func (c *CartController) GetCart(ctx *gin.Context) {
 		return
 	}
 
+	// fetch data cart
 	cart, totalPrice, err := c.cartService.GetCartByUserID(userID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

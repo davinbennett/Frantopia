@@ -48,6 +48,7 @@ func (s *orderServiceImpl) GetCategoryAnalytics(period, start, end string) (map[
 	fmt.Println("end: ", end)
 	orderFranchises, err := s.orderRepo.GetOrderFranchiseIDs(period, start, end) // <- SUCCESS
 	fmt.Println("order franchise: ", orderFranchises)
+	fmt.Println("length of order franchise:", len(orderFranchises))
 	if err != nil {
 		return nil, err
 	}

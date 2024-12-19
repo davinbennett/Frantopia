@@ -2,11 +2,10 @@ package implementations
 
 import (
 	"Backend/models"
+	franchiseModel "Backend/models/products"
 	"Backend/repositories/interfaces"
 	"context"
 	"time"
-
-	// "fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -134,4 +133,41 @@ func (r *cartImpl) UpdateStatusCart(userID int, cartID, status string) error {
 
 	_, err = r.mongoDB.Collection("carts").UpdateOne(context.TODO(), filter, update, &updateOptions)
 	return err
+}
+
+func (r *cartImpl) GetFranchiseStatusByIDs(franchiseIDs []string) (map[string]string, error) {
+	var objectIDs []primitive.ObjectID
+	for _, id := range franchiseIDs {
+		objectID, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, err 
+		}
+		objectIDs = append(objectIDs, objectID)
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": objectIDs}}
+
+	cursor, err := r.mongoDB.Collection("franchises").Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	// Mapping franchiseID -> status
+	statusMap := make(map[string]string)
+
+	for cursor.Next(context.TODO()) {
+		var franchise franchiseModel.Franchise
+		if err := cursor.Decode(&franchise); err != nil {
+			return nil, err
+		}
+
+		statusMap[franchise.ID.Hex()] = franchise.Status
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return statusMap, nil
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -214,13 +214,39 @@ const BusinessList = () =>
       setSelectedCategory( value );
    };
 
-   useFocusEffect(
-      useCallback( () =>
+   const [ refreshing, setRefreshing ] = useState( false );
+   const handleRefresh = async () =>
+   {
+      setRefreshing( true );
+      const updatedFilters = {};
+
+      if ( minPrice !== null )
       {
-         resetPagination();
-         getDataByFilter( filters, jwtToken );
-      }, [] )
-   );
+         updatedFilters.priceMin = minPrice.toString();
+      }
+
+      if ( maxPrice !== null )
+      {
+         updatedFilters.priceMax = maxPrice.toString();
+      }
+
+      if ( selectedCategory !== null )
+      {
+         updatedFilters.category = selectedCategory;
+      }
+
+      if ( selectedPlace !== null )
+      {
+         updatedFilters.location = selectedPlace.name;
+      }
+
+      updatedFilters.status = 'available';
+
+      setFilters( updatedFilters );
+      resetPagination();
+      getDataByFilter( filters, jwtToken );
+      setRefreshing( false );
+   };
 
    useEffect( () =>
    {
@@ -234,33 +260,6 @@ const BusinessList = () =>
       if ( !hasMore || loading ) return;
       loadMore( filters, jwtToken );
    };
-
-   useEffect( () =>
-   {
-      const updatedFilters = {};
-
-      if ( minPrice !== null )
-      {
-         updatedFilters.priceMin = minPrice.toString();
-      }
-
-      if ( maxPrice !== null )
-      {
-         updatedFilters.priceMax = maxPrice.toString();
-      }
-
-      if ( selectedCategory )
-      {
-         updatedFilters.category = selectedCategory;
-      }
-
-      if ( selectedPlace )
-      {
-         updatedFilters.location = selectedPlace.name;
-      }
-
-      setFilters( updatedFilters );
-   }, [ minPrice, maxPrice, selectedCategory, selectedPlace ] );
 
    return (
       <SafeAreaView className="flex-1 bg-background" edges={[ 'left', 'right', 'bottom' ]}>
@@ -286,6 +285,13 @@ const BusinessList = () =>
             data={[]}
             renderItem={null}
             keyExtractor={() => null}
+            refreshControl={
+               <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={[ "#1e90ff" ]}
+               />
+            }
             ListHeaderComponent={
                () => (
                   <View className='mx-7' >
@@ -354,6 +360,35 @@ const BusinessList = () =>
                                  onPress={() =>
                                  {
                                     hideModalPrice();
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
                                  }}
                                  className="mt-4"
                                  buttonColor='#F3B02D'
@@ -467,7 +502,38 @@ const BusinessList = () =>
                               {/* Button untuk Menutup Modal */}
                               <Button
                                  mode="contained"
-                                 onPress={() => setModalVisibleLocation( false )}
+                                 onPress={() => {
+                                    setModalVisibleLocation( false )
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
+                                 }}
                                  buttonColor='#F3B02D'
                               >
                                  Confirm
@@ -559,7 +625,35 @@ const BusinessList = () =>
                                  onPress={() =>
                                  {
                                     hideModalCategory();
-                                    console.log( selectedCategory ); // Log selected category value
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
                                  }}
                                  className="mt-4"
                                  buttonColor='#F3B02D'

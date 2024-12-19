@@ -130,7 +130,7 @@ const YourBusiness = () =>
 
    const renderEmptyComponent = () => (
       <View className='w-full h-full flex-1' style={{ paddingBottom: screenHeight * 0.7 }}>
-         <Text className='text-lg font-medium text-center'>Data is Empty</Text>
+         <Text className='text-lg font-medium text-center'>Your Business is Empty</Text>
       </View>
    );
 

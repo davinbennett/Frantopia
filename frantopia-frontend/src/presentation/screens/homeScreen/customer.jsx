@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ImageBackground, StatusBar, Dimensions, Keyboard, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -12,6 +12,7 @@ import { useProductListController } from '../../../controller/productController'
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Cart from '../cart';
+import { v4 as uuidv4 } from 'uuid';
 
 const CustomerHome = () =>
 {
@@ -188,47 +189,46 @@ const CustomerHome = () =>
       setSelectedCategory( value );
    };
 
-   useFocusEffect(
-      useCallback( () =>
-      {
-         const updatedFilters = {};
-
-         if ( minPrice !== null )
-         {
-            updatedFilters.priceMin = minPrice.toString();
-         }
-
-         if ( maxPrice !== null )
-         {
-            updatedFilters.priceMax = maxPrice.toString();
-         }
-
-         if ( selectedCategory !== null )
-         {
-            updatedFilters.category = selectedCategory;
-         }
-
-         if ( selectedPlace !== null )
-         {
-            updatedFilters.location = selectedPlace.name;
-         }
-
-         updatedFilters.status = 'available';
-
-         setFilters( updatedFilters );
-         resetPagination();
-         getDataByFilter( filters, jwtToken );
-      }, [ minPrice, maxPrice, selectedCategory, selectedPlace ] )
-   );
-
    useEffect( () =>
    {
-
-
       resetPagination();
       getDataByFilter( filters, jwtToken );
 
    }, [ filters, jwtToken ] );
+
+   const [ refreshing, setRefreshing ] = useState( false );
+   const handleRefresh = async () =>
+   {
+      setRefreshing( true );
+      const updatedFilters = {};
+
+      if ( minPrice !== null )
+      {
+         updatedFilters.priceMin = minPrice.toString();
+      }
+
+      if ( maxPrice !== null )
+      {
+         updatedFilters.priceMax = maxPrice.toString();
+      }
+
+      if ( selectedCategory !== null )
+      {
+         updatedFilters.category = selectedCategory;
+      }
+
+      if ( selectedPlace !== null )
+      {
+         updatedFilters.location = selectedPlace.name;
+      }
+
+      updatedFilters.status = 'available';
+
+      setFilters( updatedFilters );
+      resetPagination();
+      getDataByFilter( filters, jwtToken );
+      setRefreshing( false );
+   };
 
    const handleLoadMore = () =>
    {
@@ -255,7 +255,7 @@ const CustomerHome = () =>
                Home
             </Text>
 
-            <Cart/>
+            <Cart />
          </View>
 
          <FlatList
@@ -263,6 +263,13 @@ const CustomerHome = () =>
             data={[]}
             renderItem={null}
             keyExtractor={() => null}
+            refreshControl={
+               <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={[ "#1e90ff" ]}
+               />
+            }
             ListHeaderComponent={
                () => (
                   <View className='mx-7' >
@@ -331,6 +338,35 @@ const CustomerHome = () =>
                                  onPress={() =>
                                  {
                                     hideModalPrice();
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
                                  }}
                                  className="mt-4"
                                  buttonColor='#F3B02D'
@@ -444,7 +480,39 @@ const CustomerHome = () =>
                               {/* Button untuk Menutup Modal */}
                               <Button
                                  mode="contained"
-                                 onPress={() => setModalVisibleLocation( false )}
+                                 onPress={() =>
+                                 {
+                                    setModalVisibleLocation( false );
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
+                                 }}
                                  buttonColor='#F3B02D'
                               >
                                  Confirm
@@ -536,7 +604,35 @@ const CustomerHome = () =>
                                  onPress={() =>
                                  {
                                     hideModalCategory();
-                                    console.log( selectedCategory ); // Log selected category value
+                                    setRefreshing( true );
+                                    const updatedFilters = {};
+
+                                    if ( minPrice !== null )
+                                    {
+                                       updatedFilters.priceMin = minPrice.toString();
+                                    }
+
+                                    if ( maxPrice !== null )
+                                    {
+                                       updatedFilters.priceMax = maxPrice.toString();
+                                    }
+
+                                    if ( selectedCategory !== null )
+                                    {
+                                       updatedFilters.category = selectedCategory;
+                                    }
+
+                                    if ( selectedPlace !== null )
+                                    {
+                                       updatedFilters.location = selectedPlace.name;
+                                    }
+
+                                    updatedFilters.status = 'available';
+
+                                    setFilters( updatedFilters );
+                                    resetPagination();
+                                    getDataByFilter( filters, jwtToken );
+                                    setRefreshing( false );
                                  }}
                                  className="mt-4"
                                  buttonColor='#F3B02D'
@@ -553,7 +649,7 @@ const CustomerHome = () =>
                               <FlatList
                                  data={products}
                                  renderItem={renderItem}
-                                 keyExtractor={( item ) => item.id.toString()}
+                                 keyExtractor={( item ) => uuidv4()}
                                  numColumns={2}
                                  contentContainerStyle={{
                                  }}

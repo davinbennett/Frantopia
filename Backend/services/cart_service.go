@@ -4,6 +4,8 @@ import (
 	"Backend/models"
 	"Backend/repositories/interfaces"
 	"fmt"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CartService interface {
@@ -27,6 +29,7 @@ func (s *cartServiceImpl) GetCartCountByUserID(userID int) (int, error) {
 }
 
 func (s *cartServiceImpl) GetCartByUserID(userID int) ([]map[string]interface{}, int, error) {
+	// fetch cart from mongo by userID
 	cart, err := s.cartRepo.GetCartByUserID(userID)
 	if err != nil {
 		return nil, 0, err
@@ -35,8 +38,33 @@ func (s *cartServiceImpl) GetCartByUserID(userID int) ([]map[string]interface{},
 		return nil, 0, nil
 	}
 
-	var listCartResponse []map[string]interface{}
+	// Ambil semua franchise_id dari list cart
+	var franchiseIDs []string
 	for _, item := range cart.ListCart {
+		franchiseID, err := primitive.ObjectIDFromHex(item.FranchiseID) // convert string ke ObjectID
+		if err != nil {
+			return nil, 0, err
+		}
+		franchiseIDs = append(franchiseIDs, franchiseID.Hex())
+	}
+
+	// Fetch status franchise dari collection franchises
+	franchiseStatuses, err := s.cartRepo.GetFranchiseStatusByIDs(franchiseIDs)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Mapping status berdasarkan franchise_id
+	statusMap := make(map[string]string)
+	for franchiseID, status := range franchiseStatuses {
+		statusMap[franchiseID] = status
+	}
+
+	var listCartResponse []map[string]interface{}
+
+	for _, item := range cart.ListCart {
+		updatedStatus := statusMap[item.FranchiseID]
+
 		listCartResponse = append(listCartResponse, map[string]interface{}{
 			"cart_id":        item.CartID.Hex(),
 			"franchise_id":   item.FranchiseID,
@@ -47,7 +75,7 @@ func (s *cartServiceImpl) GetCartByUserID(userID int) ([]map[string]interface{},
 			"gross_profit":   item.GrossProfit,
 			"income":         item.Income,
 			"price":          item.Price,
-			"status":         item.Status,
+			"status":         updatedStatus,
 			"profile":        item.Profile,
 			"licensed":       item.Licensed,
 		})

@@ -10,4 +10,5 @@ type CartRepository interface {
 	DeleteCartItem(userID int, cartID string) error
 	AddToCart(userID int, cartItem models.CartItem) error
 	UpdateStatusCart(userID int, cartID, status string) error
+	GetFranchiseStatusByIDs(franchiseIDs []string) (map[string]string, error) 
 }

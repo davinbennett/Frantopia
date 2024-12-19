@@ -65,12 +65,35 @@ const PinPoint = ( { navigation, route } ) =>
       Alert.alert( 'Error', errorMsg );
    }
 
+   const fetchLocationName = async ( latitude, longitude ) =>
+   {
+      try
+      {
+         const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${ latitude },${ longitude }&key=${ process.env.EXPO_PUBLIC_API_GOOGLEPLACE }`
+         );
+         const data = await response.json();
+
+         if ( data.results && data.results.length > 0 )
+         {
+            return data.results[ 0 ].formatted_address; // Nama lokasi
+         }
+      } catch ( error )
+      {
+         console.log( "Error fetching location name:", error );
+         return "Unknown Location";
+      }
+   };
+
+
    const goToUserLocation = async () =>
    {
       setLoading( true );
       try
       {
          let currentLocation = await Location.getCurrentPositionAsync( {} );
+
+
          if ( currentLocation?.coords )
          {
             const { latitude, longitude } = currentLocation.coords;
@@ -80,6 +103,13 @@ const PinPoint = ( { navigation, route } ) =>
                longitude,
                latitudeDelta: 0.01,
                longitudeDelta: 0.01,
+            } );
+
+            const locationName = await fetchLocationName( latitude, longitude );
+
+            setSelectedAddress( {
+               address: locationName || "",
+               coordinates: { latitude, longitude },
             } );
          }
       } catch ( error )
@@ -197,6 +227,7 @@ const PinPoint = ( { navigation, route } ) =>
                            latitude: location.latitude,
                            longitude: location.longitude,
                         }}
+
                         title="Your Location"
                      />
                   )}

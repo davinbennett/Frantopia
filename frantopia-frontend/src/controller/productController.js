@@ -42,7 +42,7 @@ export const useProductListController = () =>
          }
       } catch ( error )
       {
-         console.error( "Error fetching products:", error );
+         console.log( "Error fetching products:", error );
       } finally
       {
          setLoading( false );
@@ -69,7 +69,7 @@ export const useProductListController = () =>
          }
       } catch ( error )
       {
-         console.error( "Error fetching products:", error );
+         console.log( "Error fetching products:", error );
       } finally
       {
          setLoading( false );

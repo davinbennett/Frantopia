@@ -55,24 +55,28 @@ func (r *orderImpl) GetSalesAnalytics(period, start, end string) ([]map[string]i
 
 	switch period {
 	case "monthly":
-		query = query.Group("CASE " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 1 OR EXTRACT(MONTH FROM order_date) = 2 THEN '1' " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 3 OR EXTRACT(MONTH FROM order_date) = 4 THEN '3' " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 5 OR EXTRACT(MONTH FROM order_date) = 6 THEN '5' " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 7 OR EXTRACT(MONTH FROM order_date) = 8 THEN '7' " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 9 OR EXTRACT(MONTH FROM order_date) = 10 THEN '9' " +
-			"WHEN EXTRACT(MONTH FROM order_date) = 11 OR EXTRACT(MONTH FROM order_date) = 12 THEN '11' " +
-			"END")
+		query = query.Where("status = ?", "Completed").
+			Group("CASE " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 1 OR EXTRACT(MONTH FROM order_date) = 2 THEN '1' " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 3 OR EXTRACT(MONTH FROM order_date) = 4 THEN '3' " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 5 OR EXTRACT(MONTH FROM order_date) = 6 THEN '5' " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 7 OR EXTRACT(MONTH FROM order_date) = 8 THEN '7' " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 9 OR EXTRACT(MONTH FROM order_date) = 10 THEN '9' " +
+				"WHEN EXTRACT(MONTH FROM order_date) = 11 OR EXTRACT(MONTH FROM order_date) = 12 THEN '11' " +
+				"END")
 	case "quarterly":
-		query = query.Group("EXTRACT(QUARTER FROM order_date)")
+		query = query.Where("status = ?", "Completed").
+			Group("EXTRACT(QUARTER FROM order_date)")
 	case "yearly":
-		query = query.Group("EXTRACT(YEAR FROM order_date)")
+		query = query.Where("status = ?", "Completed").
+			Group("EXTRACT(YEAR FROM order_date)")
 	case "day":
 		startDate, _ := time.Parse("2006-01-02", start)
 		endDate, _ := time.Parse("2006-01-02", end)
 		endDate = endDate.AddDate(0, 0, 1)
 
-		query = query.Where("order_date BETWEEN ? AND ?", startDate, endDate).
+		query = query.Where("status = ?", "Completed").
+			Where("order_date BETWEEN ? AND ?", startDate, endDate).
 			Group("EXTRACT(DAY FROM order_date)")
 	}
 
@@ -192,19 +196,21 @@ func (r *orderImpl) GetOrderFranchiseIDs(period, start, end string) ([]string, e
 
 	switch period {
 	case "monthly":
-		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+		query = query.Where("EXTRACT(MONTH FROM order_date) = EXTRACT(MONTH FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())").
+			Where("status = ?", "Completed")
 	case "quarterly":
-		query = query.Where("EXTRACT(QUARTER FROM order_date) = EXTRACT(QUARTER FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+		query = query.Where("EXTRACT(QUARTER FROM order_date) = EXTRACT(QUARTER FROM NOW()) AND EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())").
+			Where("status = ?", "Completed")
 	case "yearly":
-		query = query.Where("EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())")
+		query = query.Where("EXTRACT(YEAR FROM order_date) = EXTRACT(YEAR FROM NOW())").
+			Where("status = ?", "Completed")
 	case "day":
 		startDate, _ := time.Parse("2006-01-02", start)
 		endDate, _ := time.Parse("2006-01-02", end)
-
 		endDate = endDate.AddDate(0, 0, 1)
 
-		query = query.Where("order_date BETWEEN ? AND ?", startDate, endDate)
-
+		query = query.Where("order_date BETWEEN ? AND ?", startDate, endDate).
+			Where("status = ?", "Completed")
 	}
 
 	err := query.Scan(&franchiseIDs).Error
@@ -263,7 +269,6 @@ func (r *orderImpl) FindByStatusAndUserId(status string, userId *int, page, limi
 
 	return orders, int(totalItems), nil
 }
-
 
 func (r *orderImpl) UpdateOrderStatus(orderID int, status string) error {
 	result := r.postgresDB.Model(&models.Orders{}).Where("order_id = ?", orderID).Update("status", status)

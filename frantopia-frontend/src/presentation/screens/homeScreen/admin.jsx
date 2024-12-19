@@ -1,4 +1,4 @@
-import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Image, Dimensions } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Image, Dimensions, RefreshControl } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -37,6 +37,8 @@ const AdminHome = () =>
   const [ maxDataValueCategory, setMaxDataValueCategory ] = useState( 0 );
   const [ bestSellingCategory, setBestSellingCategory ] = useState( '-' );
 
+  const [ refreshing, setRefreshing ] = useState( false );
+
   const formatPrice = ( price ) =>
   {
     if ( price >= 1_000_000_000 )
@@ -54,6 +56,10 @@ const AdminHome = () =>
     return 'Rp. ' + price;
   };
 
+  useEffect( () =>
+  {
+    console.log( 'jwt: ', jwtToken );
+  }, [] );
 
   useEffect( () =>
   {
@@ -68,10 +74,25 @@ const AdminHome = () =>
         getBarChartDataCategory(),
         console.log( "admin? ", isAdmin ),
       ] )
-        .catch( error => console.error( 'Error fetching data:', error ) )
+        .catch( error => console.log( 'Error fetching data:', error ) )
         .finally( () => setLoading( false ) );
     }
   }, [ jwtToken, selectedOption, startDate, endDate ] );
+
+  const handleRefresh = async () =>
+  {
+    setRefreshing( true );
+    Promise.all( [
+      fetchTotalProduct(),
+      loadTotalSold(),
+      getBarChartData(),
+      getBarChartDataCategory(),
+      console.log( "admin? ", isAdmin ),
+    ] )
+      .catch( error => console.log( 'Error fetching data:', error ) )
+      .finally( () => setLoading( false ) );
+    setRefreshing( false );
+  };
 
   const calculateMaxDataValueCategory = ( data ) =>
   {
@@ -104,7 +125,7 @@ const AdminHome = () =>
       }
     } catch ( error )
     {
-      console.error( 'Error fetching bar chart data:', error );
+      console.log( 'Error fetching bar chart data:', error );
     } finally
     {
       setLoading( false );
@@ -246,7 +267,15 @@ const AdminHome = () =>
 
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 18 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 18 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[ "#1e90ff" ]}
+          />
+        }
+      >
         {/* Monthly - DatePicker */}
         <View className='w-full flex-row items-center px-7'>
           <View
