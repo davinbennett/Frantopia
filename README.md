@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/davinbennett/Frantopia">
-    <img src="https://drive.google.com/file/d/1Io5m4ICEw73McWWpOoNrTT1mJiPji4oh/view?usp=sharing" alt="Logo" width="80" height="80">
+    <img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands/512/273_Readme_logo-512.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Frantopia</h3>
@@ -38,8 +38,6 @@
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
-
-[![Frantopia Screen Shot][product-screenshot]](https://github.com/davinbennett/Frantopia)
 
 Frantopia is a mobile application designed to streamline the process of discovering and purchasing franchise options for small and medium enterprises (SMEs). This platform offers an extensive list of franchises, empowering users to explore, compare, and make informed decisions based on their business needs.
 
