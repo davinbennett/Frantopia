@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/davinbennett/Frantopia">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="https://drive.google.com/file/d/1Io5m4ICEw73McWWpOoNrTT1mJiPji4oh/view?usp=sharing" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Frantopia</h3>
